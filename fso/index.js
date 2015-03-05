@@ -1,11 +1,11 @@
-define(module, function(exports, require, library) {
+define(module, function(exports, require) {
 
   var path = require('path');
   var mime = require('mime');
   var qp = require('qp-utility');
-  var fss = library('fss');
+  var fss = require('library:fss');
 
-  exports('fso', {
+  exports('fso', qp.make({
 
     self: {
 
@@ -95,5 +95,6 @@ define(module, function(exports, require, library) {
       return this.self.create({ path: this.path + name + '.' + qp.ltrim(ext, '.') });
     }
 
-  });
+  }));
+
 });

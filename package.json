@@ -1,0 +1,20 @@
+{
+  "name": "qp-library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "CJR",
+  "license": "MIT",
+  "dependencies": {
+    "qp-define": "1.x",
+    "qp-utility": "1.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cjr--/qp-library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cjr--/qp-library/issues"
+  },
+  "homepage": "https://github.com/cjr--/qp-library"
+}

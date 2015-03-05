@@ -1,4 +1,4 @@
-define(module, function(exports, require, library) {
+define(module, function(exports, require) {
 
   var http = require('http');
   var fs = require('fs');
@@ -6,11 +6,11 @@ define(module, function(exports, require, library) {
   var mime = require('mime');
   var mustache = require('mustache');
   var qp = require('qp-utility');
-  var fss = library('fss');
-  var fso = library('fso');
-  var url = library('url');
-  var exit = library('exit');
-  var log = library('log');
+  var fss = require('library:fss');
+  var fso = require('library:fso');
+  var url = require('library:url');
+  var exit = require('library:exit');
+  var log = require('library:log');
 
   exports('http-server', {
 

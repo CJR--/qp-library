@@ -1,4 +1,4 @@
-define(module, function(exports, require, library) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
   var node_url = require('url');
