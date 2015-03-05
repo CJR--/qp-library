@@ -3,9 +3,11 @@ define(module, function(exports, require) {
   var path = require('path');
   var mime = require('mime');
   var qp = require('qp-utility');
-  var fss = require('library:fss');
+  var fss = require('library::fss');
 
-  exports('fso', qp.make({
+  exports('library::fso', qp.make({
+
+    ns: 'FSO',
 
     self: {
 

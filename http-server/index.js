@@ -6,13 +6,13 @@ define(module, function(exports, require) {
   var mime = require('mime');
   var mustache = require('mustache');
   var qp = require('qp-utility');
-  var fss = require('library:fss');
-  var fso = require('library:fso');
-  var url = require('library:url');
-  var exit = require('library:exit');
-  var log = require('library:log');
+  var fss = require('library::fss');
+  var fso = require('library::fso');
+  var url = require('library::url');
+  var exit = require('library::exit');
+  var log = require('library::log');
 
-  exports('http-server', {
+  exports('library::http-server', {
 
     name: '',
     port: 80,

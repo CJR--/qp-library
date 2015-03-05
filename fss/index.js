@@ -59,7 +59,7 @@ define(module, function(exports, require) {
     }
   }
 
-  exports('fss', {
+  exports('library::fss', {
 
     stat: function() {
       return fs.statSync(path.join.apply(null, arguments));

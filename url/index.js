@@ -4,7 +4,9 @@ define(module, function(exports, require) {
   var node_url = require('url');
   var mime = require('mime');
 
-  exports('url', qp.make({
+  exports('library::url', qp.make({
+
+    ns: 'URL',
 
     self: {
 
