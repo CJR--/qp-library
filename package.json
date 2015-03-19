@@ -1,7 +1,7 @@
 {
   "name": "qp-library",
   "version": "1.0.0",
-  "description": "",
+  "description": "javascript utility object library.",
   "main": "index.js",
   "author": "CJR",
   "license": "MIT",

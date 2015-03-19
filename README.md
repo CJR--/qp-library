@@ -1,1 +1,1 @@
-# qp-library
+javascript utility object library.
