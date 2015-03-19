@@ -48,8 +48,8 @@ define(module, function(exports, require) {
     ext: '',      // eg: four
 
     init: function(config) {
-      if (qp.is(config, 'fso')) {
-        this.fullname = config.fullname;
+      if (qp.is(config.fso, 'fso')) {
+        this.fullname = config.fso.fullname;
       } else if (qp.is(config.url, 'url')) {
         var fullname = path.join(config.base, config.url.fullname);
         if (qp.starts(fullname, config.base)) {

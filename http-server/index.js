@@ -145,5 +145,6 @@ define(module, function(exports, require) {
       }
     }
 
-  });
+  }, qp.make);
+
 });
