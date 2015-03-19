@@ -4,9 +4,7 @@ define(module, function(exports, require) {
   var node_url = require('url');
   var mime = require('mime');
 
-  exports('library::url', qp.make({
-
-    ns: 'URL',
+  exports('library::url', {
 
     self: {
 
@@ -83,6 +81,6 @@ define(module, function(exports, require) {
       return this.self.create({ url: this.path + name + '.' + qp.ltrim(ext, '.') });
     }
 
-  }));
+  }, qp.make);
 
 });

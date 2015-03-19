@@ -5,9 +5,7 @@ define(module, function(exports, require) {
   var qp = require('qp-utility');
   var fss = require('library::fss');
 
-  exports('library::fso', qp.make({
-
-    ns: 'FSO',
+  exports('library::fso', {
 
     self: {
 
@@ -97,6 +95,6 @@ define(module, function(exports, require) {
       return this.self.create({ path: this.path + name + '.' + qp.ltrim(ext, '.') });
     }
 
-  }));
+  }, qp.make);
 
 });
