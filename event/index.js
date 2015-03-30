@@ -2,7 +2,7 @@ define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  exports('library::event', {
+  exports('qp-library/event', {
 
     properties: {
       event_handlers: {}

@@ -12,7 +12,7 @@ define(module, function(exports, require) {
   var exit = require('library::exit');
   var log = require('library::log');
 
-  exports('library::http-server', {
+  exports('qp-library/http-server', {
 
     name: '',
     port: 80,

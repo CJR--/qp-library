@@ -2,7 +2,7 @@ define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  exports('library::stringbuilder', {
+  exports('qp-library/stringbuilder', {
 
     properties: {
       eol: '\n',

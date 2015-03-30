@@ -6,7 +6,7 @@ define(module, function(exports, require) {
     console.log.apply(console, arguments);
   }
 
-  exports('library::log', log, {
+  exports('qp-library/log', log, {
 
     clear: function() {
      if (process.platform === 'win32') {

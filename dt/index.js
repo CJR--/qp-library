@@ -2,7 +2,7 @@ define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  exports('library::dt', {
+  exports('qp-library/dt', {
 
     self: {
 
