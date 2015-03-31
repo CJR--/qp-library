@@ -6,11 +6,11 @@ define(module, function(exports, require) {
   var mime = require('mime');
   var mustache = require('mustache');
   var qp = require('qp-utility');
-  var fss = require('library::fss');
-  var fso = require('library::fso');
-  var url = require('library::url');
-  var exit = require('library::exit');
-  var log = require('library::log');
+  var fss = require('qp-library/fss');
+  var fso = require('qp-library/fso');
+  var url = require('qp-library/url');
+  var exit = require('qp-library/exit');
+  var log = require('qp-library/log');
 
   exports('qp-library/http-server', {
 
