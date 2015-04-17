@@ -3,8 +3,8 @@ define(module, function(exports, require) {
   var http = require('http');
   var fs = require('fs');
   var domain = require('domain');
-  var mime = require('mime');
   var mustache = require('mustache');
+  var mime = require('mime');
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
   var fso = require('qp-library/fso');
@@ -12,7 +12,7 @@ define(module, function(exports, require) {
   var exit = require('qp-library/exit');
   var log = require('qp-library/log');
 
-  exports('qp-library/http-server', {
+  exports('qp-library/http_server', {
 
     name: '',
     port: 80,
@@ -57,6 +57,7 @@ define(module, function(exports, require) {
     init: function(config) {
       log.clear();
       exit.handler(this.on_stop);
+      this.on_request = config.on_request;
       this.server = this.create_server();
       this.server.listen(this.port);
       this.on_start();

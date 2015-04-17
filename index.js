@@ -3,7 +3,7 @@ module.exports = {
   fso: require('./fso'),
   fss: require('./fss'),
   http: {
-    server: require('./http-server')
+    server: require('./http_server')
   },
   log: require('./log'),
   url: require('./url')
