@@ -56,7 +56,7 @@ define(module, function(exports, require) {
           this.fullname = fullname;
         }
       } else if (qp.is(config.path, 'string')) {
-        this.fullname = config.path;
+        this.fullname = path.join(config.base || '', config.path);
       } else if (qp.is(config.path, 'array')) {
         this.fullname = path.join.apply(null, config.path);
       }

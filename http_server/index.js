@@ -57,7 +57,7 @@ define(module, function(exports, require) {
     init: function(config) {
       log.clear();
       exit.handler(this.on_stop);
-      this.on_request = config.on_request;
+      if (config.on_request) this.on_request = config.on_request.bind(this);
       this.server = this.create_server();
       this.server.listen(this.port);
       this.on_start();
