@@ -6,10 +6,10 @@
   "author": "CJR",
   "license": "MIT",
   "dependencies": {
-    "mime": "1.3.4",
-    "mustache": "^2.0.0",
+    "mime": "1.x",
+    "mustache": "2.x",
     "qp-define": "1.x",
-    "qp-utility": "^1.1.1"
+    "qp-utility": "1.x"
   },
   "repository": {
     "type": "git",
