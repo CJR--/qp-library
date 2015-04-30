@@ -31,25 +31,30 @@ define(module, function(exports, require) {
 
     handlers: {
 
-      template: function(send, id, data) {
+      template: function(send, id, data, headers) {
         var template = this.templates[id];
         if (template) {
-          send.data(mustache.render(fss.read(template.path), data), this.mime(template.type));
+          send.data(mustache.render(fss.read(template.path), data), this.mime(template.type), headers);
         }
       },
 
-      text: function(send, msg) {
-        send.data(msg, this.mime('text'));
+      text: function(send, msg, headers) {
+        send.data(msg, this.mime('text'), headers);
       },
 
-      data: function(send, data, mime) {
-        send(200, { mime: mime, size: Buffer.byteLength(data) }, data);
+      data: function(send, data, mime, headers) {
+        send(200, { mime: mime, size: Buffer.byteLength(data) }, data, headers);
       },
 
-      file: function(send, file) {
+      file: function(send, file, headers) {
         if (file.is_file && file.exists) {
-          send(200, file, fs.createReadStream(file.fullname));
+          send(200, file, fs.createReadStream(file.fullname), headers);
         }
+      },
+
+      json: function(send, o, headers) {
+        var data = JSON.stringify(o);
+        send(200, { mime: this.mime('json'), size: Buffer.byteLength(data) }, data, headers);
       }
 
     },
@@ -88,14 +93,14 @@ define(module, function(exports, require) {
       log(log.magenta(res.statusCode), log.blue(req.method), req_url.fullname);
     },
 
-    send: function(res, status, headers, data) {
+    send: function(res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
         if (arguments.length === 3 && !data) {
           res.writeHead(204, this.headers);
           res.end();
         } else {
-          res.writeHead(status, this.create_headers(headers));
+          res.writeHead(status, this.create_headers(stat, headers));
           if (qp.is(data, 'string')) {
             res.write(data);
             res.end();
@@ -108,15 +113,15 @@ define(module, function(exports, require) {
       }
     },
 
-    create_headers: function(opt) {
-      if (!opt) { return this.headers; }
-      opt.mtime = opt.mtime || qp.now();
+    create_headers: function(stat, headers) {
+      if (!stat) { return this.headers; }
+      stat.mtime = stat.mtime || qp.now();
       return qp.assign({
-        'ETag': JSON.stringify([opt.ino || 'x', opt.size, opt.mtime.getTime()].join('-')),
-        'Last-Modified': opt.mtime.toUTCString(),
-        'Content-Type': opt.mime,
-        'Content-Length': opt.size
-      }, this.headers);
+        'ETag': JSON.stringify([stat.ino || 'x', stat.size, stat.mtime.getTime()].join('-')),
+        'Last-Modified': stat.mtime.toUTCString(),
+        'Content-Type': stat.mime,
+        'Content-Length': stat.size
+      }, this.headers, headers);
     },
 
     on_request: function(method, url, send) { send(204); },
