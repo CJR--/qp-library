@@ -128,7 +128,7 @@ define(module, function(exports, require) {
       var json = null;
       try {
         json = JSON.parse(fs.readFileSync(path.join.apply(null, arguments), 'utf8'));
-      } catch(e) { throw e; }
+      } catch(e) { json = {}; }
       return json;
     },
 
