@@ -9,7 +9,8 @@
     "mime": "1.x",
     "mustache": "2.x",
     "qp-define": "1.x",
-    "qp-utility": "1.x"
+    "qp-utility": "1.x",
+    "useragent": "^2.1.7"
   },
   "repository": {
     "type": "git",

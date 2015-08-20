@@ -3,6 +3,7 @@ define(module, function(exports, require) {
   var http = require('http');
   var fs = require('fs');
   var domain = require('domain');
+  var useragent = require('useragent');
   var mustache = require('mustache');
   var mime = require('mime');
   var qp = require('qp-utility');
@@ -18,6 +19,18 @@ define(module, function(exports, require) {
     port: 80,
     www: '',
     headers: {},
+    cors: {
+      preflight: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Methods': 'GET,POST',
+        'Access-Control-Allow-Headers': 'SessionId, Content-Type, Accept, X-Requested-With'
+      },
+      request: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': 'true'
+      }
+    },
     templates: {},
     server: null,
 
@@ -80,6 +93,16 @@ define(module, function(exports, require) {
 
     mime: function(type) {
       return this.mime_types[type] || (this.mime_types[type] = mime.lookup(type));
+    },
+
+    read_body: function(req, done) {
+      var json = '';
+      req.on('data', function(data) { json += data; });
+      req.on('end', function() { done(null, JSON.parse(json)); });
+    },
+
+    read_agent: function(req) {
+      req.ua = useragent.parse(req.headers['user-agent']);
     },
 
     run_request: function(req, res) {

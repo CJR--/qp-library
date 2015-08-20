@@ -1,12 +1,10 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
 
-  exports('qp-library/model', {
+  make('qp-library/model', {
 
-    properties: {
-      data: null
-    },
+    data: null,
 
     init: function() {
       var data = {};
@@ -25,6 +23,6 @@ define(module, function(exports, require) {
 
     validate: function() { }
 
-  }, qp.make);
+  });
 
 });
