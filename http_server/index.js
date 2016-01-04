@@ -95,7 +95,7 @@ define(module, function(exports, require) {
       return this.mime_types[type] || (this.mime_types[type] = mime.lookup(type));
     },
 
-    read_body: function(req, done) {
+    read_json: function(req, done) {
       var json = '';
       req.on('data', function(data) { json += data; });
       req.on('end', function() { done(null, JSON.parse(json)); });
@@ -106,20 +106,19 @@ define(module, function(exports, require) {
     },
 
     run_request: function(req, res) {
-      var send = this.send.bind(this, res);
+      var req_url = url.create({ url: req.url });
+      var send = this.send.bind(this, req_url, req, res);
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
       }, this);
-      var req_url = url.create({ url: req.url });
       this.on_request(req.method, req_url, send, req, res);
-      if (!res.done) { send(204); }
-      log(log.magenta(res.statusCode), log.blue(req.method), req_url.fullname);
     },
 
-    send: function(res, status, stat, data, headers) {
+    send: function(req_url, req, res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
-        if (arguments.length === 3 && !data) {
+        log(log.magenta(res.statusCode), log.blue(req.method), req_url.fullname);
+        if (arguments.length === 4 && !data) {
           res.writeHead(204, this.headers);
           res.end();
         } else {
