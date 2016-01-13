@@ -1,8 +1,8 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
 
-  exports('qp-library/dt', {
+  make('qp-library/dt', {
 
     self: {
 
@@ -17,6 +17,6 @@ define(module, function(exports, require) {
       timestamp: 0
     }
 
-  }, qp.make);
+  });
 
 });

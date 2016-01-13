@@ -1,4 +1,4 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var http = require('http');
   var fs = require('fs');
@@ -13,7 +13,7 @@ define(module, function(exports, require) {
   var exit = require('qp-library/exit');
   var log = require('qp-library/log');
 
-  exports('qp-library/http_server', {
+  make('qp-library/http_server', {
 
     name: '',
     port: 80,
@@ -173,6 +173,6 @@ define(module, function(exports, require) {
       }
     }
 
-  }, qp.make);
+  });
 
 });

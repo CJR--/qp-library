@@ -1,10 +1,10 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
   var format = require('qp-library/format').create();
 
-  exports('qp-library/string_db', {
+  make('qp-library/string_db', {
 
     db: null,
     cache: { },
@@ -35,6 +35,6 @@ define(module, function(exports, require) {
       }
     }
 
-  }, qp.make);
+  });
 
 });

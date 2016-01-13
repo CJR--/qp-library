@@ -2,7 +2,7 @@ define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  exports('qp-library/stringbuilder', {
+  make('qp-library/stringbuilder', {
 
     properties: {
       eol: '\n',
@@ -55,6 +55,6 @@ define(module, function(exports, require) {
       return this.items.join('');
     }
 
-  }, qp.make);
+  });
 
 });

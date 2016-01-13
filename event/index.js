@@ -1,8 +1,8 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
 
-  exports('qp-library/event', {
+  make('qp-library/event', {
 
     properties: {
       event_handlers: {}
@@ -41,6 +41,6 @@ define(module, function(exports, require) {
       }
     }
 
-  }, qp.make);
+  });
 
 });

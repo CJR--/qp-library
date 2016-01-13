@@ -1,8 +1,8 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
 
-  exports('qp-library/stopwatch', {
+  make('qp-library/stopwatch', {
 
     properties: {
       started: null,
@@ -42,6 +42,6 @@ define(module, function(exports, require) {
       return this.elapsed() / 1000;
     }
 
-  }, qp.make);
+  });
 
 });

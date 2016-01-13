@@ -110,6 +110,14 @@ define(module, function(exports, require) {
       }
     },
 
+    rename: function(file, name) {
+      try {
+        fs.renameSync(file, path.join(path.dirname(file), name));
+      } catch (e) {
+        return null;
+      }
+    },
+
     append: function() {
       var args = __slice.call(arguments);
       var data = args.pop();

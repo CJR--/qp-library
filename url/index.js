@@ -1,10 +1,10 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
   var node_url = require('url');
   var mime = require('mime');
 
-  exports('qp-library/url', {
+  make('qp-library/url', {
 
     self: {
 
@@ -82,6 +82,6 @@ define(module, function(exports, require) {
       return this.self.create({ url: this.path + name + '.' + qp.ltrim(ext, '.') });
     }
 
-  }, qp.make);
+  });
 
 });

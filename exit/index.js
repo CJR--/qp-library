@@ -1,4 +1,5 @@
 define(module, function(exports, require) {
+
   var stdin = process.stdin;
   var exit_handler = function() {
     process.exit();
@@ -18,4 +19,5 @@ define(module, function(exports, require) {
   exports('qp-library/exit', {
     handler: function(handler) { exit_handler = handler; }
   });
+
 });

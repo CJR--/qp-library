@@ -1,9 +1,9 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
   var events = require('qp-library/event');
 
-  exports('qp-library/collection', {
+  makes('qp-library/collection', {
 
     mixin: [ events ],
 
@@ -47,6 +47,6 @@ define(module, function(exports, require) {
 
     validate: function() { }
 
-  }, qp.make);
+  });
 
 });
