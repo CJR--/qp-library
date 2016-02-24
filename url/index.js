@@ -49,7 +49,7 @@ define(module, function(exports, require, make) {
         this.ext = file_parts.slice(-1)[0];
       } else {
         this.is_directory = true;
-        if (qp.is_empty(parts) || (parts.length === 1 && parts[0] === '')) {
+        if (qp.empty(parts) || (parts.length === 1 && parts[0] === '')) {
           this.fullname = this.sep;
         } else {
           this.fullname = this.sep + parts.join(this.sep) + this.sep;
