@@ -1,11 +1,11 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
 
   var slice = Array.prototype.slice;
   var escape = { '\'': '\\\'', '\n': '\\n' };
 
-  exports('qp-library/format', {
+  make('qp-library/format', {
 
     cache: {},
 
@@ -48,6 +48,6 @@ define(module, function(exports, require) {
       return new Function(sb.join(''));
     }
 
-  }, qp.make);
+  });
 
 });

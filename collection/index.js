@@ -3,7 +3,7 @@ define(module, function(exports, require, make) {
   var qp = require('qp-utility');
   var events = require('qp-library/event');
 
-  makes('qp-library/collection', {
+  make('qp-library/collection', {
 
     mixin: [ events ],
 
