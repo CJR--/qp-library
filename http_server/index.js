@@ -18,6 +18,7 @@ define(module, function(exports, require, make) {
     name: '',
     port: 80,
     www: '',
+    favicon: 'none',
     headers: {},
     cors: {
       preflight: {
@@ -39,7 +40,8 @@ define(module, function(exports, require, make) {
       html: mime.lookup('html'),
       css: mime.lookup('css'),
       js: mime.lookup('js'),
-      json: mime.lookup('json')
+      json: mime.lookup('json'),
+      ico: mime.lookup('ico')
     },
 
     handlers: {
@@ -111,7 +113,11 @@ define(module, function(exports, require, make) {
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
       }, this);
-      this.on_request(req.method, req_url, send, req, res);
+      if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
+        send(200, { mime: this.mime('ico'), size: 0 }, '');
+      } else {
+        this.on_request(req.method, req_url, send, req, res);
+      }
     },
 
     send: function(req_url, req, res, status, stat, data, headers) {
