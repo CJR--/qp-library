@@ -17,7 +17,7 @@ define(module, function(exports, require) {
   }
 
   exports('qp-library/exit', {
-    handler: function(handler) { exit_handler = handler; }
+    handler: function(handler) { exit_handler = handler || exit_handler; }
   });
 
 });
