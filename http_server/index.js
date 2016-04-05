@@ -18,6 +18,7 @@ define(module, function(exports, require, make) {
     name: '',
     port: 80,
     www: '',
+    external: {},
     favicon: 'none',
     headers: {},
     cors: {
@@ -123,7 +124,7 @@ define(module, function(exports, require, make) {
     send: function(req_url, req, res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
-        log(log.magenta(res.statusCode), log.blue(req.method), req_url.fullname);
+        log(log.magenta(res.statusCode), log.blue(qp.rpad(req.method, 4)), req_url.fullname);
         if (arguments.length === 4 && !data) {
           res.writeHead(204, this.headers);
           res.end();
