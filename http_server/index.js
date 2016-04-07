@@ -101,12 +101,24 @@ define(module, function(exports, require, make) {
     read_json: function(req, done) {
       var json = '';
       req.on('data', function(data) { json += data; });
-      req.on('end', function() { done(null, JSON.parse(json)); });
+      req.on('end', function() { done.call(this, null, JSON.parse(json)); }.bind(this));
     },
 
     read_agent: function(req) {
       req.ua = useragent.parse(req.headers['user-agent']);
     },
+
+    ip_address: function(req) {
+      var ip_address;
+      var forwarded = req.headers['x-forwarded-for'];
+      if (forwarded) {
+        ip_address = forwarded.split(',')[0];
+      }
+      return ip_address || req.connection.remoteAddress;
+    },
+
+    user_agent: function(req) { return req.headers['user-agent']; },
+    session_id: function(req) { return req.headers['session-id'] || ''; },
 
     run_request: function(req, res) {
       var req_url = url.create({ url: req.url });
