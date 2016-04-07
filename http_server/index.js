@@ -69,7 +69,7 @@ define(module, function(exports, require, make) {
       },
 
       json: function(send, o, headers) {
-        var data = JSON.stringify(o);
+        var data = JSON.stringify(o, null, 2);
         send(200, { mime: this.mime('json'), size: Buffer.byteLength(data) }, data, headers);
       }
 
