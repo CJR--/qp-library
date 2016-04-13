@@ -85,6 +85,13 @@ define(module, function(exports, require, make) {
     },
 
     create_server: function() {
+      process.on('uncaughtException', this.on_error.bind(this));
+      return http.createServer(function(req, res) {
+        this.run_request.call(this, req, res);
+      }.bind(this));
+    },
+
+    create_server_domain: function() {
       return http.createServer(function(req, res) {
         var d = domain.create();
         d.on('error', this.on_error.bind(this, req, res));
@@ -179,11 +186,13 @@ define(module, function(exports, require, make) {
     on_error: function(http_request, http_response, error) {
       try {
         this.server.close();
-        log('Exception:', http_request.url);
+        log('Exception:', http_request ? http_request.url : ' ...');
         log(error.stack);
-        http_response.statusCode = 500;
-        http_response.setHeader('content-type', 'text/plain');
-        http_response.end(error.stack);
+        if (http_response) {
+          http_response.statusCode = 500;
+          http_response.setHeader('content-type', 'text/plain');
+          http_response.end(error.stack);
+        }
       } catch (error1) {
         log(error1.stack);
       } finally {
