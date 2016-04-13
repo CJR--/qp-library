@@ -79,13 +79,13 @@ define(module, function(exports, require, make) {
       log.clear();
       exit.handler(this.on_stop);
       if (config.on_request) this.on_request = config.on_request.bind(this);
-      this.server = this.create_server();
+      this.server = this.create_server_domain();
       this.server.listen(this.port);
       this.on_start();
     },
 
     create_server: function() {
-      process.on('uncaughtException', this.on_error.bind(this));
+      process.on('uncaughtException', this.on_error.bind(this, undefined, undefined));
       return http.createServer(function(req, res) {
         this.run_request.call(this, req, res);
       }.bind(this));
