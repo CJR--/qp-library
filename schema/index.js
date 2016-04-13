@@ -1,19 +1,33 @@
 define(module, function(exports, require) {
 
-  exports('qp-library/schema', {
+  var schema = function(def) {
+    
+  };
 
-    field: {
-      primary: { type: 'integer', primary: true },
-      foreign: { type: 'integer', foreign: true },
+  schema.create = function(data) {
 
-      created: { type: 'timestamp', default: 'now' },
-      modified: { type: 'timestamp', default: 'now' }
-    },
+  };
 
-    create: function(def) {
-      return def;
-    }
+  schema.field = function(type, size) {
 
-  });
+  };
+
+  schema.field.primary = function() {
+    return { type: 'integer', primary: true };
+  };
+
+  schema.field.foreign = function() {
+    return { type: 'integer', foreign: true };
+  };
+
+  schema.field.created = function() {
+    return { type: 'timestamp', default: 'now' };
+  };
+
+  schema.field.modified = function() {
+    return { type: 'timestamp', default: 'now' };
+  };
+
+  exports('qp-library/schema', schema);
 
 });
