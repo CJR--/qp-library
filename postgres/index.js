@@ -1,5 +1,7 @@
 define(module, (exports, require, make) => {
 
+  var qp = require('qp-utility');
+
   var named_param_re = /\:[-a-zA-Z0-9_]+/g;
 
   make({
@@ -12,72 +14,62 @@ define(module, (exports, require, make) => {
       this.connection = o.connection;
     },
 
-    select: function(cmd) {
-      this.connection.query(this.prepare(cmd), (error, result) => {
+    select: function(config) {
+      var done = config.done || qp.noop;
+      var cmd = this.prepare(config);
+      this.connection.query(cmd.pg, (error, pg_result) => {
         if (error) {
-          cmd.done(error);
-        } else if (result.rows > 1) {
-          cmd.done(new Error('Select cannot return multiple rows'));
+          done(error);
+        } else if (pg_result.rows > 1) {
+          done(new Error('Select cannot return multiple rows'));
         } else {
-          cmd.done(null, result.rows[0]);
+          done(null, pg_result.rows[0]);
         }
       });
     },
 
-    select_all: function(cmd) {
-      this.connection.query(this.prepare(cmd), (error, result) => {
+    select_all: function(config) {
+      var done = config.done || qp.noop;
+      var cmd = this.prepare(config);
+      this.connection.query(cmd.pg, (error, result) => {
         if (error) {
-          cmd.done(error);
+          done(error);
         } else {
-          cmd.done(null, result.rows);
+          done(null, result.rows);
         }
       });
     },
 
-    insert: function(cmd) {
-      this.connection.query(this.prepare(cmd), (error, result) => {
-        if (error) {
-          cmd.done(error);
-        } else {
-          cmd.done(null, result.rows[0]._id);
+    execute: function(config) {
+      var done = config.done || qp.noop;
+      var cmd = this.prepare(config);
+      this.connection.query(cmd.pg, (error, pg_result) => {
+        if (error) { done(error); } else {
+          var result = { cmd: cmd, row_count: pg_result.rowCount, rows: pg_result.rows };
+          if (cmd.insert) result.id = pg_result.rows[0]._id;
+          done(null, result);
         }
       });
     },
 
-    update: function(cmd) {
-      this.connection.query(this.prepare(cmd), (error, result) => {
-        if (error) {
-          cmd.done(error);
-        } else {
-          cmd.done(null, result.rowCount);
-        }
-      });
-    },
-
-    delete: function(cmd) {
-      this.connection.query(this.prepare(cmd), (error, result) => {
-        if (error) {
-          cmd.done(error);
-        } else {
-          cmd.done(null, result.rowCount);
-        }
-      });
-    },
-
-    execute: function(cmd) {
-      this.connection.query(this.prepare(cmd), cmd.done);
-    },
-
-    prepare: function(cmd) {
-      var text = cmd.text;
-      var values = cmd.values || [];
-      var params = cmd.params || {};
-      text = text.replace(named_param_re, function(match) {
-        values.push(params[match.slice(1)]);
+    prepare: function(config) {
+      var type = config.text.slice(0, 6);
+      var cmd = {
+        name: config.name,
+        type: type,
+        non_query: qp.inlist(type, 'INSERT', 'UPDATE', 'DELETE')
+      };
+      cmd[qp.lower(type)] = true;
+      var text = qp.is(config.text, 'array') ? config.text.join(' ') : config.text;
+      var values = config.values || [];
+      var data = config.data || {};
+      cmd.text = text.replace(named_param_re, function(match) {
+        values.push(data[match.slice(1)]);
         return '$' + values.length;
       });
-      if (text.slice(0, 7) === 'INSERT ') text += ' RETURNING _id';
-      return { text: text, values: values, name: cmd.name };
+      if (cmd.insert) cmd.text += ' RETURNING _id';
+      cmd.pg = { name: cmd.name, text: cmd.text, values: values };
+      return cmd;
     }
 
   });
