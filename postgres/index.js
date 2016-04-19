@@ -10,10 +10,6 @@ define(module, (exports, require, make) => {
 
     connection: null,
 
-    init: function(o) {
-      this.connection = o.connection;
-    },
-
     select: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);

@@ -105,6 +105,12 @@ define(module, function(exports, require, make) {
       return this.mime_types[type] || (this.mime_types[type] = mime.lookup(type));
     },
 
+    read_data: function(req, done) {
+      var post_data = '';
+      req.on('data', function(data) { post_data += data; });
+      req.on('end', function() { done.call(this, null, post_data); }.bind(this));
+    },
+
     read_json: function(req, done) {
       var json = '';
       req.on('data', function(data) { json += data; });
