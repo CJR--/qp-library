@@ -1,33 +1,39 @@
 define(module, function(exports, require) {
 
-  var schema = function(def) {
-    
-  };
+  function schema(def) {
+    return def;
+  }
+
+  schema.ns = 'qp-library/schema';
 
   schema.create = function(data) {
 
   };
 
   schema.field = function(type, size) {
-
+    if (type === 'text') return { type: 'string', default: '' };
+    else if (type === 'int') return { type: 'number', size: size, default: 0 };
+    else if (type === 'bool') return { type: 'boolean', default: false };
+    else if (type === 'datetime') return { type: 'date', default: function() { return new Date(); } };
+    else if (type === 'date') return { type: 'date', default: function() { return new Date(); } };
   };
 
-  schema.field.primary = function() {
+  schema.primary = function() {
     return { type: 'integer', primary: true };
   };
 
-  schema.field.foreign = function() {
+  schema.foreign = function() {
     return { type: 'integer', foreign: true };
   };
 
-  schema.field.created = function() {
+  schema.created = function() {
     return { type: 'timestamp', default: 'now' };
   };
 
-  schema.field.modified = function() {
+  schema.modified = function() {
     return { type: 'timestamp', default: 'now' };
   };
 
-  exports('qp-library/schema', schema);
+  exports(schema);
 
 });

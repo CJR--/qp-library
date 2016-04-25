@@ -16,8 +16,15 @@ define(module, function(exports, require) {
     });
   }
 
-  exports('qp-library/exit', {
-    handler: function(handler) { exit_handler = handler || exit_handler; }
-  });
+  function exit() {
+    console.log();
+    exit_handler();
+  }
+
+  exit.ns = 'qp-library/exit';
+
+  exit.handler = function(handler) { exit_handler = handler || exit_handler; };
+
+  exports(exit);
 
 });
