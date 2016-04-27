@@ -1,6 +1,6 @@
 define(module, function(exports, require) {
 
-  var __slice = Array.prototype.slice;
+  var slice = Array.prototype.slice;
   var fs = require('fs');
   var os = require('os');
   var util = require('util');
@@ -85,7 +85,7 @@ define(module, function(exports, require) {
     },
 
     write: function() {
-      var args = __slice.call(arguments);
+      var args = slice.call(arguments);
       var data = args.pop();
       var file = path.join.apply(null, args);
       var filepath = path.dirname(file);
@@ -96,6 +96,12 @@ define(module, function(exports, require) {
         fs.writeFileSync(file, data);
       } catch (e) { throw e; }
       return file;
+    },
+
+    clear: function() {
+      var args = slice.call(arguments);
+      args.push('');
+      return this.write.apply(this, args);
     },
 
     copy: function(source, target) {
@@ -121,7 +127,7 @@ define(module, function(exports, require) {
     },
 
     append: function() {
-      var args = __slice.call(arguments);
+      var args = slice.call(arguments);
       var data = args.pop();
       var file = path.join.apply(null, args);
       var filepath = path.dirname(file);
@@ -140,6 +146,14 @@ define(module, function(exports, require) {
         json = JSON.parse(fs.readFileSync(path.join.apply(null, arguments), 'utf8'));
       } catch(e) { json = {}; }
       return json;
+    },
+
+    write_json: function() {
+      var args = slice.call(arguments);
+      var o = args.pop();
+      this.clear.apply(this, args);
+      args.push(JSON.stringify(o, null, '  '));
+      this.write.apply(this, args);
     },
 
     get_directories: function(dir, options) {
