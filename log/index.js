@@ -2,6 +2,8 @@ define(module, function(exports, require) {
 
   var util = require('util');
   var qp = require('qp-utility');
+  var fss = require('qp-library/fss');
+  var os = require('os');
 
   var log = function log() {
     console.log.apply(console, arguments);
@@ -19,6 +21,10 @@ define(module, function(exports, require) {
 
   log.dir = function(o, options) {
     console.log(util.inspect(o, options || { showHidden: false, depth: null, colors: true }));
+  };
+
+  log.file = function(log_file, o, eol_count) {
+    fss.append(log_file, JSON.stringify(o, null, '  ') + qp.repeat(os.EOL, eol_count || 0));
   };
 
   log.blue_white = function(s) { return '\x1b[47m\x1b[34m' + s + '\x1b[0m\x1b[0m'; };
