@@ -1,39 +1,71 @@
-define(module, function(exports, require) {
+define(module, function(exports, require, make) {
 
-  function schema(def) {
-    return def;
+  var qp = require('qp-utility');
+
+  function default_string() { return ''; }
+  function default_number() { return 0; }
+  function default_boolean() { return false; }
+  function default_datetime() { return new Date(); }
+  function default_date() {
+    var date = new Date();
+    date.setUTCHours(12, 0, 0, 0);
+    return date;
   }
 
-  schema.ns = 'qp-library/schema';
+  exports({
 
-  schema.create = function(data) {
+    ns: 'qp-library/schema',
 
-  };
+    build: function(_exports, schema) {
+      schema.create = this.create.bind(this, schema.fields);
+      _exports(schema);
+    },
 
-  schema.field = function(type, size) {
-    if (type === 'text') return { type: 'string', default: '' };
-    else if (type === 'int') return { type: 'number', size: size, default: 0 };
-    else if (type === 'bool') return { type: 'boolean', default: false };
-    else if (type === 'datetime') return { type: 'date', default: function() { return new Date(); } };
-    else if (type === 'date') return { type: 'date', default: function() { return new Date(); } };
-  };
+    create: function(fields, data, options) {
+      options = qp.options(options, { internal: false });
+      var o = {};
+      qp.each_own(fields, function(v, k) {
+        if (options.internal || !v.internal) {
+          o[k] = data[k] || v.default();
+        }
+      });
+      return o;
+    },
 
-  schema.primary = function() {
-    return { type: 'integer', primary: true };
-  };
+    field: function(type, size, options) {
+      var field;
+      if (type === 'text') {
+        field = { type: 'string', size: size, default: default_string };
+      } else if (type === 'int') {
+        field = { type: 'number', size: size, default: default_number };
+      } else if (type === 'bool') {
+        field = { type: 'boolean', default: default_boolean };
+      } else if (type === 'datetime') {
+        field = { type: 'date', default: default_datetime };
+      } else if (type === 'date') {
+        field = { type: 'date', default: default_date };
+      } else {
+        field = { type: '', default: qp.noop };
+      }
+      return qp.options(field, options);
+    },
 
-  schema.foreign = function() {
-    return { type: 'integer', foreign: true };
-  };
+    primary: function() {
+      return this.field('int', 64, { primary: true });
+    },
 
-  schema.created = function() {
-    return { type: 'timestamp', default: 'now' };
-  };
+    foreign: function() {
+      return this.field('int', 64, { foreign: true });
+    },
 
-  schema.modified = function() {
-    return { type: 'timestamp', default: 'now' };
-  };
+    created: function() {
+      return this.field('datetime');
+    },
 
-  exports(schema);
+    modified: function() {
+      return this.field('datetime');
+    }
+
+  });
 
 });
