@@ -1,8 +1,11 @@
 define(module, function(exports, require, make) {
 
+  var net = require('net');
   var http = require('http');
   var fs = require('fs');
+  var crypto = require('crypto');
   var domain = require('domain');
+  var ws = require('ws');
   var useragent = require('useragent');
   var mustache = require('mustache');
   var mime = require('mime');
@@ -32,6 +35,10 @@ define(module, function(exports, require, make) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': 'true'
       }
+    },
+    socket: {
+      allow_upgrade: false,
+      server: null
     },
     templates: {},
     server: null,
@@ -80,6 +87,7 @@ define(module, function(exports, require, make) {
       exit.handler(this.on_stop);
       if (config.on_request) this.on_request = config.on_request.bind(this);
       this.server = this.create_server_domain();
+      this.socket.server = this.create_socket_server();
       this.server.listen(this.port);
       this.on_start();
     },
@@ -99,6 +107,19 @@ define(module, function(exports, require, make) {
         d.add(res);
         d.run(this.run_request.bind(this, req, res));
       }.bind(this));
+    },
+    
+    create_socket_server: function() {
+      if (this.socket.allow_upgrade) {
+        var server = new ws.Server({ server: this.server });
+        server.on('connection', (socket) => {
+          socket.on('message', (data, flags) => {
+            var incoming = JSON.parse(data);
+            this.on_message.call(this, incoming);
+          });
+        });
+        return server;
+      }
     },
 
     mime: function(type) {
@@ -120,7 +141,7 @@ define(module, function(exports, require, make) {
     read_agent: function(req) {
       req.ua = useragent.parse(req.headers['user-agent']);
     },
-
+    
     ip_address: function(req) {
       var ip_address;
       var forwarded = req.headers['x-forwarded-for'];
@@ -179,6 +200,8 @@ define(module, function(exports, require, make) {
     },
 
     on_request: function(method, url, send) { send(204); },
+    
+    on_message: function(message) { return null; },
 
     on_start: function() {
       log(log.blue_white(' *** %s:%s *** '), this.name, this.port);
