@@ -42,7 +42,7 @@ define(module, (exports, require, make) => {
       this.connection.query(cmd.pg, (error, pg_result) => {
         if (error) { done(error); } else {
           var result = { cmd: cmd, row_count: pg_result.rowCount, rows: pg_result.rows };
-          if (cmd.insert) result.id = pg_result.rows[0]._id;
+          if (cmd.insert) result.id = pg_result.rows[0].id;
           done(null, result);
         }
       });
@@ -63,7 +63,7 @@ define(module, (exports, require, make) => {
         values.push(data[match.slice(1)]);
         return '$' + values.length;
       });
-      if (cmd.insert) cmd.text += ' RETURNING _id';
+      if (cmd.insert) cmd.text += ' RETURNING id';
       cmd.pg = { name: cmd.name, text: cmd.text, values: values };
       return cmd;
     }

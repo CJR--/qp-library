@@ -2,7 +2,7 @@ define(module, function(exports, require) {
 
   var stdin = process.stdin;
   var exit_handler = function() {
-    process.exit();
+    process.exit(0);
   };
 
   if (stdin.setRawMode) {

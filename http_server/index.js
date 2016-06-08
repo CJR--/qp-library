@@ -209,7 +209,7 @@ define(module, function(exports, require, make) {
 
     on_stop: function() {
       log('Stopped');
-      process.exit(1);
+      process.exit(0);
     },
 
     on_error: function(http_request, http_response, error) {
