@@ -16,7 +16,9 @@ define(module, function(exports, require, make) {
   var exit = require('qp-library/exit');
   var log = require('qp-library/log');
 
-  make('qp-library/http_server', {
+  make({
+
+    ns: 'qp-library/http_server',
 
     name: '',
     port: 80,
@@ -40,6 +42,7 @@ define(module, function(exports, require, make) {
       allow_upgrade: false,
       server: null
     },
+    sockets: [],
     templates: {},
     server: null,
 
@@ -108,16 +111,30 @@ define(module, function(exports, require, make) {
         d.run(this.run_request.bind(this, req, res));
       }.bind(this));
     },
-    
+
     create_socket_server: function() {
       if (this.socket.allow_upgrade) {
         var server = new ws.Server({ server: this.server });
+        server.on('headers', (headers) => log('SocketServer - Headers', headers));
         server.on('connection', (socket) => {
+          this.sockets.push({ id: socket.id });
+          log('Websocket - Connection - ', socket.id);
           socket.on('message', (data, flags) => {
+            log('Websocket - Message');
             var incoming = JSON.parse(data);
             this.on_message.call(this, incoming);
           });
+          socket.on('close', (code, message) => {
+            log('Websocket - ', code, ' - ', message);
+          });
+          socket.on('error', (error) => log.error('Websocket', error));
+          socket.on('ping', (data, flags) => log('Websocket - Ping'));
+          socket.on('pong', (data, flags) => log('Websocket - Pong'));
         });
+        server.on('close', (socket) => {
+          log('SocketServer - Close', socket.id);
+        });
+        server.on('error', (error) => log.error('SocketServer', error));
         return server;
       }
     },
@@ -141,7 +158,7 @@ define(module, function(exports, require, make) {
     read_agent: function(req) {
       req.ua = useragent.parse(req.headers['user-agent']);
     },
-    
+
     ip_address: function(req) {
       var ip_address;
       var forwarded = req.headers['x-forwarded-for'];
@@ -200,8 +217,8 @@ define(module, function(exports, require, make) {
     },
 
     on_request: function(method, url, send) { send(204); },
-    
-    on_message: function(message) { return null; },
+
+    on_message: function(message) { },
 
     on_start: function() {
       log(log.blue_white(' *** %s:%s *** '), this.name, this.port);

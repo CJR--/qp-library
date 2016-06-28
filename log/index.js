@@ -27,6 +27,14 @@ define(module, function(exports, require) {
     fss.append(log_file, JSON.stringify(o, null, '  ') + qp.repeat(os.EOL, eol_count || 0));
   };
 
+  log.error = function() {
+    if (qp.is(arguments[0], 'error')) {
+      console.error(util.inspect(arguments[0], arguments[1] || { showHidden: false, depth: null, colors: true }));
+    } else {
+      console.error(arguments[0], util.inspect(arguments[1], arguments[2] || { showHidden: false, depth: null, colors: true }));
+    }
+  };
+
   log.blue_white = function(s) { return '\x1b[47m\x1b[34m' + s + '\x1b[0m\x1b[0m'; };
   log.red = function(s) { return '\x1b[31m' + s + '\x1b[0m'; };
   log.green = function(s) { return '\x1b[32m' + s + '\x1b[0m'; };

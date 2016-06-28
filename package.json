@@ -10,7 +10,8 @@
     "mustache": "2.x",
     "qp-define": "1.x",
     "qp-utility": "1.x",
-    "useragent": "2.x"
+    "useragent": "2.x",
+    "ws": "1.x"
   },
   "repository": {
     "type": "git",
