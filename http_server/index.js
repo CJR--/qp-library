@@ -5,7 +5,6 @@ define(module, function(exports, require, make) {
   var fs = require('fs');
   var crypto = require('crypto');
   var domain = require('domain');
-  var ws = require('ws');
   var useragent = require('useragent');
   var mustache = require('mustache');
   var mime = require('mime');
@@ -15,6 +14,7 @@ define(module, function(exports, require, make) {
   var url = require('qp-library/url');
   var exit = require('qp-library/exit');
   var log = require('qp-library/log');
+  var socket = require('qp-library/http_server/socket');
 
   make({
 
@@ -38,13 +38,9 @@ define(module, function(exports, require, make) {
         'Access-Control-Allow-Credentials': 'true'
       }
     },
-    socket: {
-      allow_upgrade: false,
-      server: null
-    },
-    sockets: [],
     templates: {},
     server: null,
+    enable_sockets: false,
 
     mime_types: {
       text: mime.lookup('txt'),
@@ -75,6 +71,8 @@ define(module, function(exports, require, make) {
       file: function(send, file, headers) {
         if (file.is_file && file.exists) {
           send(200, file, fs.createReadStream(file.fullname), headers);
+        } else {
+          send(404);
         }
       },
 
@@ -90,7 +88,7 @@ define(module, function(exports, require, make) {
       exit.handler(this.on_stop);
       if (config.on_request) this.on_request = config.on_request.bind(this);
       this.server = this.create_server_domain();
-      this.socket.server = this.create_socket_server();
+      if (this.enable_sockets) this.create_socket_server();
       this.server.listen(this.port);
       this.on_start();
     },
@@ -110,33 +108,6 @@ define(module, function(exports, require, make) {
         d.add(res);
         d.run(this.run_request.bind(this, req, res));
       }.bind(this));
-    },
-
-    create_socket_server: function() {
-      if (this.socket.allow_upgrade) {
-        var server = new ws.Server({ server: this.server });
-        server.on('headers', (headers) => log('SocketServer - Headers', headers));
-        server.on('connection', (socket) => {
-          this.sockets.push({ id: socket.id });
-          log('Websocket - Connection - ', socket.id);
-          socket.on('message', (data, flags) => {
-            log('Websocket - Message');
-            var incoming = JSON.parse(data);
-            this.on_message.call(this, incoming);
-          });
-          socket.on('close', (code, message) => {
-            log('Websocket - ', code, ' - ', message);
-          });
-          socket.on('error', (error) => log.error('Websocket', error));
-          socket.on('ping', (data, flags) => log('Websocket - Ping'));
-          socket.on('pong', (data, flags) => log('Websocket - Pong'));
-        });
-        server.on('close', (socket) => {
-          log('SocketServer - Close', socket.id);
-        });
-        server.on('error', (error) => log.error('SocketServer', error));
-        return server;
-      }
     },
 
     mime: function(type) {
@@ -169,7 +140,14 @@ define(module, function(exports, require, make) {
     },
 
     user_agent: function(req) { return req.headers['user-agent']; },
-    session_id: function(req) { return req.headers['session-id'] || ''; },
+
+    session_id: function(o) {
+      if (qp.is(o, 'url')) {
+        return o.get_params().sid || '';
+      } else {
+        return o.headers['session-id'] || '';
+      }
+    },
 
     run_request: function(req, res) {
       var req_url = url.create({ url: req.url });
@@ -217,8 +195,6 @@ define(module, function(exports, require, make) {
     },
 
     on_request: function(method, url, send) { send(204); },
-
-    on_message: function(message) { },
 
     on_start: function() {
       log(log.blue_white(' *** %s:%s *** '), this.name, this.port);
