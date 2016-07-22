@@ -26,7 +26,7 @@ define(module, function(exports, require, make) {
       var o = {};
       qp.each_own(fields, function(v, k) {
         if (options.internal || !v.internal) {
-          o[k] = data[k] || v.default();
+          o[k] = data ? data[k] || v.default() : v.default();
         }
       });
       return o;
