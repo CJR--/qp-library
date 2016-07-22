@@ -2,9 +2,12 @@ define(module, function(exports, require, make) {
 
   var qp = require('qp-utility');
   var node_url = require('url');
+  var qs = require('querystring');
   var mime = require('mime');
 
-  make('qp-library/url', {
+  make({
+
+    ns: 'qp-library/url',
 
     self: {
 
@@ -24,26 +27,30 @@ define(module, function(exports, require, make) {
 
     },
 
+    parsed: null,
+
     sep: '/',
     is_file: false,
     is_directory: false,
     fullname: '',
     path: '',
+    parts: [],
     file: '',
     name: '',
     ext: '',
     mime: '',
 
     init: function(config) {
-      var parsed_url = node_url.parse(config.url);
-      var url_path = qp.trim(parsed_url.pathname.toLowerCase(), this.sep);
+      this.parsed = node_url.parse(config.url);
+      var url_path = qp.trim(this.parsed.pathname.toLowerCase(), this.sep);
       var parts = qp.split(url_path, this.sep);
       var file = qp.last(parts) || '';
       if (file.indexOf('.') !== -1) {
         var file_parts = qp.split(file, '.');
         this.is_file = true;
         this.fullname = this.sep + parts.join(this.sep);
-        this.path = this.sep + parts.slice(0, -1).join(this.sep) + this.sep;
+        this.parts = parts.slice(0, -1);
+        this.path = this.sep + this.parts.join(this.sep) + this.sep;
         this.file = file;
         this.name = file_parts.slice(0, -1).join('.');
         this.ext = file_parts.slice(-1)[0];
@@ -52,6 +59,7 @@ define(module, function(exports, require, make) {
         if (qp.empty(parts) || (parts.length === 1 && parts[0] === '')) {
           this.fullname = this.sep;
         } else {
+          this.parts = parts;
           this.fullname = this.sep + parts.join(this.sep) + this.sep;
         }
         this.path = this.fullname;
@@ -80,7 +88,14 @@ define(module, function(exports, require, make) {
 
     set_file: function(name, ext) {
       return this.self.create({ url: this.path + name + '.' + qp.ltrim(ext, '.') });
-    }
+    },
+
+    get_params: (function() {
+      var params = false;
+      return function() {
+        return params || (params = qs.parse(this.parsed.query));
+      };
+    })()
 
   });
 
