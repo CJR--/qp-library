@@ -5,7 +5,9 @@ define(module, function(exports, require, make) {
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
 
-  make('qp-library/fso', {
+  make({
+
+    ns: 'qp-library/fso',
 
     self: {
 
@@ -26,6 +28,18 @@ define(module, function(exports, require, make) {
           parts.pop();
         }
         return path.sep + parts.join(path.sep) + path.sep;
+      },
+
+      load: function() {
+        return this.create({ path: path.join.apply(null, qp.compact(arguments)) });
+      },
+
+      split: function(filepath) {
+        return qp.trim(filepath, path.sep).split(path.sep);
+      },
+
+      join: function() {
+        return path.join.apply(null, qp.compact(arguments));
       }
 
     },
@@ -40,7 +54,8 @@ define(module, function(exports, require, make) {
     size: 0,
     mime: '',
 
-    fullname: '', // eg: /one/two/three.four
+    fullname: '', // eg: /one/two/three.four || /one/two/three
+    filename: '', // eg: /one/two/three.four
 
     path: '',     // eg: /one/two
     file: '',     // eg: three.four
@@ -84,6 +99,7 @@ define(module, function(exports, require, make) {
           this.is_directory = true;
         }
       }
+      if (this.is_file) this.filename = this.fullname;
       this.mime = mime.lookup(this.fullname);
     },
 
@@ -92,7 +108,7 @@ define(module, function(exports, require, make) {
     },
 
     set_file: function(name, ext) {
-      return this.self.create({ path: this.path + name + '.' + qp.ltrim(ext, '.') });
+      return this.self.create({ path: this.path + path.sep + name + '.' + qp.ltrim(ext, '.') });
     }
 
   });
