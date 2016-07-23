@@ -90,7 +90,12 @@ define(module, function(exports, require, make) {
       this.server = this.create_server_domain();
       if (this.enable_sockets) this.create_socket_server();
       this.server.listen(this.port);
+      this.on_setup();
       this.on_start();
+    },
+
+    add_handler: function(key, handler) {
+      this.handlers[key] = handler.bind(this);
     },
 
     create_server: function() {
@@ -193,6 +198,8 @@ define(module, function(exports, require, make) {
         'Content-Length': stat.size
       }, this.headers, headers);
     },
+
+    on_setup: function() { },
 
     on_request: function(method, url, send) { send(204); },
 
