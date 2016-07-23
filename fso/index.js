@@ -104,11 +104,19 @@ define(module, function(exports, require, make) {
     },
 
     set_ext: function(ext) {
-      return this.self.create({ path: this.path + this.name + '.' + qp.ltrim(ext, '.') });
+      if (this.is_file) {
+        return this.self.create({ path: this.path + this.name + '.' + qp.ltrim(ext, '.') });
+      } else if (this.is_directory) {
+        return this.self.create({ path: qp.rtrim(this.path, path.sep) + '.' + qp.ltrim(ext, '.') });
+      }
     },
 
     set_file: function(name, ext) {
-      return this.self.create({ path: this.path + path.sep + name + '.' + qp.ltrim(ext, '.') });
+      if (this.is_file) {
+        return this.self.create({ path: this.path + path.sep + name + '.' + qp.ltrim(ext, '.') });
+      } else if (this.is_directory) {
+        return this.self.create({ path: this.path + name + '.' + qp.ltrim(ext, '.') });
+      }
     }
 
   });
