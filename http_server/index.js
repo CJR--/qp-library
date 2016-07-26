@@ -64,6 +64,10 @@ define(module, function(exports, require, make) {
         send.data(msg, this.mime('text'), headers);
       },
 
+      html: function(send, html, headers) {
+        send.data(html, this.mime('html'), headers);
+      },
+
       data: function(send, data, mime, headers) {
         send(200, { mime: mime, size: Buffer.byteLength(data) }, data, headers);
       },
