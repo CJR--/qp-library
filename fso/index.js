@@ -56,6 +56,7 @@ define(module, function(exports, require, make) {
 
     fullname: '', // eg: /one/two/three.four || /one/two/three
     filename: '', // eg: /one/two/three.four
+    filepath: '', // eg: /one/two/three
 
     path: '',     // eg: /one/two
     file: '',     // eg: three.four
@@ -99,7 +100,10 @@ define(module, function(exports, require, make) {
           this.is_directory = true;
         }
       }
-      if (this.is_file) this.filename = this.fullname;
+      if (this.is_file) {
+        this.filename = this.fullname;
+        this.filepath = qp.rtrim(this.fullname, '.' + this.ext);
+      }
       this.mime = mime.lookup(this.fullname);
     },
 
