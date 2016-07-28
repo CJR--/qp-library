@@ -121,7 +121,9 @@ define(module, function(exports, require, make) {
       } else if (this.is_directory) {
         return this.self.create({ path: this.path + name + '.' + qp.ltrim(ext, '.') });
       }
-    }
+    },
+
+    read_sync: function() { return this.is_file ? fss.read(this.filename) : ''; }
 
   });
 
