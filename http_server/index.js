@@ -20,6 +20,8 @@ define(module, function(exports, require, make) {
 
     ns: 'qp-library/http_server',
 
+    mixin: [ socket ],
+
     name: '',
     port: 80,
     www: '',
@@ -91,7 +93,7 @@ define(module, function(exports, require, make) {
       log.clear();
       exit.handler(this.on_stop);
       if (config.on_request) this.on_request = config.on_request.bind(this);
-      this.server = this.create_server_domain();
+      this.create_server_domain();
       if (this.enable_sockets) this.create_socket_server();
       this.server.listen(this.port);
       this.on_setup();
@@ -104,13 +106,13 @@ define(module, function(exports, require, make) {
 
     create_server: function() {
       process.on('uncaughtException', this.on_error.bind(this, undefined, undefined));
-      return http.createServer(function(req, res) {
+      this.server = http.createServer(function(req, res) {
         this.run_request.call(this, req, res);
       }.bind(this));
     },
 
     create_server_domain: function() {
-      return http.createServer(function(req, res) {
+      this.server = http.createServer(function(req, res) {
         var d = domain.create();
         d.on('error', this.on_error.bind(this, req, res));
         d.add(req);
@@ -156,6 +158,11 @@ define(module, function(exports, require, make) {
       } else {
         return o.headers['session-id'] || '';
       }
+    },
+
+    status: function(code, include_code) {
+      var description = http.STATUS_CODES[code] || '';
+      return (include_code ? code : '') + (description ? ' - ' + description : '');
     },
 
     run_request: function(req, res) {
