@@ -10,6 +10,10 @@ define(module, (exports, require, make) => {
 
     connection: null,
 
+    initialise: function(data) {
+      return typeof data === 'object' ? data : { id: data };
+    },
+
     select: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
