@@ -11,7 +11,8 @@
     "qp-define": "1.x",
     "qp-utility": "1.x",
     "useragent": "2.x",
-    "ws": "1.x"
+    "ws": "1.x",
+    "pg": "4.x"
   },
   "repository": {
     "type": "git",
