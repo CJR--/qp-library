@@ -14,13 +14,10 @@ define(module, function(exports, require, make) {
   var url = require('qp-library/url');
   var exit = require('qp-library/exit');
   var log = require('qp-library/log');
-  var socket = require('qp-library/http_server/socket');
 
   make({
 
     ns: 'qp-library/http_server',
-
-    mixin: [ socket ],
 
     name: '',
     port: 80,
@@ -41,8 +38,10 @@ define(module, function(exports, require, make) {
       }
     },
     templates: {},
-    server: null,
-    enable_sockets: false,
+
+    http_server: null,
+    enable_domain: true,
+    _setup: null,
 
     mime_types: {
       text: mime.lookup('txt'),
@@ -92,11 +91,23 @@ define(module, function(exports, require, make) {
     init: function(config) {
       log.clear();
       exit.handler(this.on_stop);
+      if (config.authenticate) this.authenticate = config.authenticate.bind(this);
       if (config.on_request) this.on_request = config.on_request.bind(this);
-      this.create_server_domain();
-      if (this.enable_sockets) this.create_socket_server();
-      this.server.listen(this.port);
-      this.on_setup();
+      if (config.on_notify) this.on_notify = config.on_notify.bind(this);
+      if (config.on_connect) this.on_connect = config.on_connect.bind(this);
+      if (config.on_connected) this.on_connected = config.on_connected.bind(this);
+      if (config.on_message) this.on_message = config.on_message.bind(this);
+      if (config.setup) this._setup = config.setup.bind(this);
+      this.create_server();
+    },
+
+    setup: function() {
+      this.http_server.listen(this.port);
+      if (this._setup) this._setup();
+      this.start();
+    },
+
+    start: function() {
       this.on_start();
     },
 
@@ -105,20 +116,20 @@ define(module, function(exports, require, make) {
     },
 
     create_server: function() {
-      process.on('uncaughtException', this.on_error.bind(this, undefined, undefined));
-      this.server = http.createServer(function(req, res) {
-        this.run_request.call(this, req, res);
-      }.bind(this));
-    },
-
-    create_server_domain: function() {
-      this.server = http.createServer(function(req, res) {
-        var d = domain.create();
-        d.on('error', this.on_error.bind(this, req, res));
-        d.add(req);
-        d.add(res);
-        d.run(this.run_request.bind(this, req, res));
-      }.bind(this));
+      if (this.enable_domain) {
+        this.http_server = http.createServer(function(req, res) {
+          var d = domain.create();
+          d.on('error', this.on_error.bind(this, req, res));
+          d.add(req);
+          d.add(res);
+          d.run(this.run_request.bind(this, req, res));
+        }.bind(this));
+      } else {
+        process.on('uncaughtException', this.on_error.bind(this, undefined, undefined));
+        this.http_server = http.createServer(function(req, res) {
+          this.run_request.call(this, req, res);
+        }.bind(this));
+      }
     },
 
     mime: function(type) {
@@ -210,8 +221,6 @@ define(module, function(exports, require, make) {
       }, this.headers, headers);
     },
 
-    on_setup: function() { },
-
     on_request: function(method, url, send) { send(204); },
 
     on_start: function() {
@@ -225,7 +234,7 @@ define(module, function(exports, require, make) {
 
     on_error: function(http_request, http_response, error) {
       try {
-        this.server.close();
+        this.http_server.close();
         log('Exception:', http_request ? http_request.url : ' ...');
         log(error.stack);
         if (http_response) {
