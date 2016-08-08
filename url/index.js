@@ -14,7 +14,7 @@ define(module, function(exports, require, make) {
       sep: '/',
 
       split: function() {
-        return qp.flatten(qp.array(arguments).map(function(part) { return part.split(this.sep); }));
+        return qp.flatten(qp.arg(arguments).map(function(part) { return part.split(this.sep); }));
       },
 
       join: function() {
