@@ -206,7 +206,7 @@ define(module, function(exports, require) {
             this.get_files(dir, options, files);
           }, this);
         }
-      } catch(e) { files = null; }
+      } catch(e) { if (options.debug) console.log(e); files = null; }
       return files;
     },
 
