@@ -2,6 +2,7 @@ define(module, function(exports, require, make) {
 
   var path = require('path');
   var mime = require('mime');
+  var semver = require('semver');
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
 
@@ -40,6 +41,18 @@ define(module, function(exports, require, make) {
 
       join: function() {
         return path.join.apply(null, qp.compact(arguments));
+      },
+
+      // eg: /one/two/three-v1.0.14-alpha.3.four
+      // version: 1.0.14-alpha.3
+      parse_version: function(filepath) {
+        var filename = qp.before_last(this.filename(filepath), '.');
+        var version = semver.clean(qp.after(filename, '-v'));
+        return version;
+      },
+
+      has_version: function(filepath) {
+        return qp.contains(this.filename(filepath), '-v');
       }
 
     },
@@ -47,6 +60,7 @@ define(module, function(exports, require, make) {
     exists: false,
     is_file: false,
     is_directory: false,
+    has_version: false,
     ino: 0,
     atime: 0,
     mtime: 0,
@@ -57,6 +71,7 @@ define(module, function(exports, require, make) {
     fullname: '', // eg: /one/two/three.four || /one/two/three
     filename: '', // eg: /one/two/three.four
     filepath: '', // eg: /one/two/three
+    version: '',  // eg: 1.0.14
 
     path: '',     // eg: /one/two
     file: '',     // eg: three.four
@@ -75,6 +90,10 @@ define(module, function(exports, require, make) {
         this.fullname = path.join(config.base || '', config.path);
       } else if (qp.is(config.path, 'array')) {
         this.fullname = path.join.apply(null, config.path);
+      }
+
+      if (config.ext) {
+        this.fullname = qp.rtrim(this.fullname, this.sep) + '.' + config.ext;
       }
 
       this.exists = fss.exists(this.fullname);
@@ -103,6 +122,10 @@ define(module, function(exports, require, make) {
       if (this.is_file) {
         this.filename = this.fullname;
         this.filepath = qp.rtrim(this.fullname, '.' + this.ext);
+        if (qp.contains(this.filename, '-v')) {
+          this.version = this.self.parse_version(this.filename);
+          this.has_version = qp.not_empty(this.version);
+        }
       }
       this.mime = mime.lookup(this.fullname);
     },
