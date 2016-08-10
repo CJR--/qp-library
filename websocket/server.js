@@ -46,7 +46,6 @@ define(module, (exports, require, make) => {
     on_socket_connected: function(ws) {
       var socket = websocket.create({ ws: ws });
       ws.on('error', (e) => this.on_socket_error(socket, e));
-      // ws.on('open', (e) => this.on_socket_open(socket, e));
       ws.on('close', (code, message) => this.on_socket_close(socket, code, message));
       if (this.on_connected) {
         this.on_connected(socket, (error, connect) => {

@@ -43,8 +43,11 @@ define(module, function(exports, require, make) {
 
     parse_request: function(request) {
       this.url = url.create({ url: request.url });
-      if (this.url.parts.length >= 2) this.channel = this.url.parts[1];
-      if (this.url.parts.length === 3) this.session_id = this.url.parts[2];
+      if (this.url.parts.length === 2) this.channel = this.url.parts[1];
+      if (this.url.parts.length === 3) {
+        this.session_id = this.url.parts[1];
+        this.channel = this.url.parts[2];
+      }
     },
 
     send: function(data, options, done) {
