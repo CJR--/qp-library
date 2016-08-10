@@ -22,11 +22,11 @@ define(module, function(exports, require, make) {
     },
 
     listen: function(name) {
-      this.db.query('LISTEN "' + name + '"');
+      this.db.query('LISTEN ' + name);
     },
 
     unlisten: function(name) {
-      this.db.query('UNLISTEN "' + name + '"');
+      this.db.query('UNLISTEN ' + name);
     },
 
     start: function() {
