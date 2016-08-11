@@ -6,7 +6,7 @@ define(module, function(exports, require) {
   var os = require('os');
 
   var log = function log() {
-    console.log.apply(console, arguments);
+    console.log.apply(console, qp.compact(arguments));
   };
 
   log.ns = 'qp-library/log';
