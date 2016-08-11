@@ -22,23 +22,35 @@ define(module, function(exports, require, make) {
     },
 
     create: function(fields, data, options) {
+      data = data || {};
       options = qp.options(options, { internal: false });
       var o = {};
       qp.each_own(fields, function(v, k) {
         if (options.internal || !v.internal) {
-          o[k] = data ? data[k] || v.default() : v.default();
+          o[k] = data[k] || v.default();
         }
       });
       return o;
     },
 
     field: function(type, size, options) {
+      if (qp.is(size, 'object')) options = size; size = 0;
       var field;
       if (type === 'text') {
-        field = { type: 'string', size: size, default: default_string };
-      } else if (type === 'int') {
-        field = { type: 'number', size: size, default: default_number };
-      } else if (type === 'bool') {
+        if (size) {
+          field = { type: 'varchar', size: size, default: default_string };
+        } else {
+          field = { type: 'text', default: default_string };
+        }
+      } else if (type === 'int' || type === 'integer') {
+        if (size === 2) {
+          field = { type: 'smallint', default: default_number };
+        } else if (size === 8) {
+          field = { type: 'bigint', default: default_number };
+        } else {
+          field = { type: 'integer', default: default_number };
+        }
+      } else if (type === 'bool' || type === 'boolean') {
         field = { type: 'boolean', default: default_boolean };
       } else if (type === 'datetime') {
         field = { type: 'date', default: default_datetime };
