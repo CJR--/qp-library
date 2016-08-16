@@ -18,6 +18,10 @@ define(module, function(exports, require, make) {
 
     build: function(_exports, schema) {
       schema.create = this.create.bind(this, schema.fields);
+      schema.table = { name: schema.table };
+      qp.each_own(schema.columns, function(column, name) {
+        column.name = name;
+      });
       _exports(schema);
     },
 
