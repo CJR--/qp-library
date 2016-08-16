@@ -2,6 +2,7 @@ define(module, function(exports, require) {
 
   var stdin = process.stdin;
   var exit_handler = function() {
+    console.log('Process Exit (0)');
     process.exit(0);
   };
 
@@ -17,7 +18,6 @@ define(module, function(exports, require) {
   }
 
   function exit() {
-    console.log();
     exit_handler();
   }
 
