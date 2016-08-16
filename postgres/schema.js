@@ -1,6 +1,9 @@
 define(module, (exports, require, make) => {
 
   var qp = require('qp-utility');
+  var log = require('qp-library/log');
+
+  function quote(text) { return '"' + text + '"'; }
 
   make({
 
@@ -11,10 +14,10 @@ define(module, (exports, require, make) => {
     create_table: function(data, done) {
       this.execute({
         text: [
-          'CREATE TABLE', data.table.name, '(',
+          'CREATE TABLE', quote(data.table.name), '(',
             qp.map(data.columns, column => {
               var def = column.name;
-              if (column.primary_key) {
+              if (column.primary) {
                 def += ' SERIAL PRIMARY KEY';
               } else {
                 def += ' ' + column.type;
@@ -30,7 +33,7 @@ define(module, (exports, require, make) => {
 
     drop_table: function(data, done) {
       this.execute({
-        text: [ 'DROP TABLE IF EXISTS', data.table.name ],
+        text: [ 'DROP TABLE IF EXISTS', quote(data.table.name) ],
         done: done
       });
     },
@@ -78,6 +81,7 @@ define(module, (exports, require, make) => {
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
+      // log(cmd.pg.text)
       this.connection.query(cmd.pg, (error, pg_result) => {
         if (error) { done(error); } else {
           var result = { cmd: cmd };
