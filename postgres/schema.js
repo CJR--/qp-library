@@ -11,6 +11,16 @@ define(module, (exports, require, make) => {
 
     connection: null,
 
+    grant: function(data, done) {
+      this.execute({
+        text: [
+          [ 'GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA', data.schema, 'TO', data.user ],
+          [ 'GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA', data.schema, 'TO', data.user ]
+        ],
+        done: done
+      });
+    },
+
     create_table: function(data, done) {
       this.execute({
         text: [
@@ -21,7 +31,7 @@ define(module, (exports, require, make) => {
                 def += ' SERIAL PRIMARY KEY';
               } else {
                 def += ' ' + column.type;
-                if (column.is_array) def += '[]';
+                if (column.array) def += '[]';
               }
               return def;
             }).join(', '),
@@ -81,7 +91,7 @@ define(module, (exports, require, make) => {
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
-      // log(cmd.pg.text)
+      log(cmd.pg.text);
       this.connection.query(cmd.pg, (error, pg_result) => {
         if (error) { done(error); } else {
           var result = { cmd: cmd };
@@ -91,7 +101,14 @@ define(module, (exports, require, make) => {
     },
 
     prepare: function(config) {
-      var text = qp.is(config.text, 'array') ? config.text.join(' ') : config.text;
+      var text = config.text;
+      if (qp.is(config.text, 'array')) {
+        if (qp.is(config.text[0], 'array')) {
+          text = qp.map(config.text, cmd => cmd.join(' ') + ';').join(qp.eol());
+        } else {
+          text = config.text.join(' ');
+        }
+      }
       var cmd = { name: config.name, text: text, type: config.type };
       cmd[qp.lower(cmd.type)] = true;
       cmd.pg = { name: cmd.name, text: cmd.text };
