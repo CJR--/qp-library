@@ -70,8 +70,8 @@ define(module, function(exports, require, make) {
       return this.field('int', 64, { primary: true });
     },
 
-    foreign: function() {
-      return this.field('int', 64, { foreign: true });
+    foreign: function(table) {
+      return this.field('int', 64, { foreign: true, table: table });
     },
 
     created: function() {
