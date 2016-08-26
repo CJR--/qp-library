@@ -55,7 +55,7 @@ define(module, (exports, require, make) => {
       });
     },
 
-    add_column: function() {
+    add_column: function(data, done) {
       this.execute({
         text: [ 'ALTER TABLE', data.table.name, 'ADD COLUMN', data.column.name, data.column.type ],
         done: done
@@ -102,12 +102,12 @@ define(module, (exports, require, make) => {
             'DECLARE',
             '  id bigint;',
             'BEGIN',
-            '  IF TG_OP = "INSERT" OR TG_OP = "UPDATE" THEN',
+            '  IF TG_OP = \'INSERT\' OR TG_OP = \'UPDATE\' THEN',
             '    id = NEW.id;',
             '  ELSE',
             '    id = OLD.id;',
             '  END IF;',
-            '  PERFORM pg_notify("table_update", json_build_object("table", TG_TABLE_NAME, "id", id, "type", TG_OP)::text);',
+            '  PERFORM pg_notify(\'row_modified\', json_build_object(\'table\', TG_TABLE_NAME, \'id\', id, \'type\', TG_OP)::text);',
             '  RETURN NEW;',
             'END;',
             '$$ LANGUAGE plpgsql;'
@@ -117,7 +117,7 @@ define(module, (exports, require, make) => {
     },
 
     create_triggers: function(data, done) {
-      if (qp.empty(data.triggers)) qp.done(done);
+      if (qp.empty(data.triggers)) return done();
       var triggers = qp.map(data.triggers, (trigger) => {
         return this.create_trigger_command({ trigger: trigger, table: data.table });
       });
@@ -136,7 +136,7 @@ define(module, (exports, require, make) => {
         'CREATE TRIGGER', data.trigger.name, data.trigger.sequence || 'AFTER',
           data.trigger.event, 'ON', data.table.name,
           'FOR EACH', data.trigger.row ? 'ROW' : 'STATEMENT',
-          'EXECUTE PROCEDURE', data.trigger.procedure
+          'EXECUTE PROCEDURE', data.trigger.procedure + '()'
       ];
     },
 
