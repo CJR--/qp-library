@@ -88,6 +88,58 @@ define(module, (exports, require, make) => {
     add_constraint: function() { },
     remove_constraint: function() { },
 
+    drop_trigger: function(data, done) {
+      this.execute({
+        text: [ 'DROP TRIGGER IF EXISTS', data.trigger.name, 'ON', data.table.name, 'CASCADE' ],
+        done: done
+      });
+    },
+
+    create_row_modified_procedure: function(data, done) {
+      this.execute({
+        text: [
+          'CREATE OR REPLACE FUNCTION notify_row_modified() RETURNS trigger AS $$',
+            'DECLARE',
+            '  id bigint;',
+            'BEGIN',
+            '  IF TG_OP = "INSERT" OR TG_OP = "UPDATE" THEN',
+            '    id = NEW.id;',
+            '  ELSE',
+            '    id = OLD.id;',
+            '  END IF;',
+            '  PERFORM pg_notify("table_update", json_build_object("table", TG_TABLE_NAME, "id", id, "type", TG_OP)::text);',
+            '  RETURN NEW;',
+            'END;',
+            '$$ LANGUAGE plpgsql;'
+        ],
+        done: done
+      });
+    },
+
+    create_triggers: function(data, done) {
+      if (qp.empty(data.triggers)) qp.done(done);
+      var triggers = qp.map(data.triggers, (trigger) => {
+        return this.create_trigger_command({ trigger: trigger, table: data.table });
+      });
+      this.execute({ text: triggers, done: done });
+    },
+
+    create_trigger: function(data, done) {
+      this.execute({
+        text: this.create_trigger_command(data),
+        done: done
+      });
+    },
+
+    create_trigger_command: function(data) {
+      return [
+        'CREATE TRIGGER', data.trigger.name, data.trigger.sequence || 'AFTER',
+          data.trigger.event, 'ON', data.table.name,
+          'FOR EACH', data.trigger.row ? 'ROW' : 'STATEMENT',
+          'EXECUTE PROCEDURE', data.trigger.procedure
+      ];
+    },
+
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
