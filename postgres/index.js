@@ -1,6 +1,7 @@
 define(module, (exports, require, make) => {
 
   var qp = require('qp-utility');
+  var log = require('qp-library/log');
 
   var named_param_re = /\:[-a-zA-Z0-9_]+/g;
 
@@ -17,12 +18,15 @@ define(module, (exports, require, make) => {
     select: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
+      log(cmd.pg.text);
+      log(cmd.pg.values);
       this.connection.query(cmd.pg, (error, pg_result) => {
         if (error) {
           done(error);
         } else if (pg_result.rows > 1) {
           done(new Error('Select cannot return multiple rows'));
         } else {
+          log(pg_result.rows[0]);
           done(null, pg_result.rows[0]);
         }
       });
@@ -31,10 +35,13 @@ define(module, (exports, require, make) => {
     select_all: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
+      log(cmd.pg.text);
+      log(cmd.pg.values);
       this.connection.query(cmd.pg, (error, result) => {
         if (error) {
           done(error);
         } else {
+          log(result.rows.length, 'rows');
           done(null, result.rows);
         }
       });
@@ -43,10 +50,13 @@ define(module, (exports, require, make) => {
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
+      log(cmd.pg.text);
+      log(cmd.pg.values);
       this.connection.query(cmd.pg, (error, pg_result) => {
-        if (error) { done(error); } else {
+        if (error) { log(error); done(error); } else {
           var result = { cmd: cmd, row_count: pg_result.rowCount, rows: pg_result.rows };
           if (cmd.insert) result.id = pg_result.rows[0].id;
+          log(pg_result.rows.length, 'rows');
           done(null, result);
         }
       });
