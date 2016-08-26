@@ -17,7 +17,7 @@ define(module, function(exports, require, make) {
     ns: 'qp-library/schema',
 
     build: function(_exports, schema) {
-      schema.create = this.create.bind(this, schema.fields);
+      schema.create = this.create.bind(this, schema.columns);
       schema.table = { name: schema.table };
       qp.each_own(schema.columns, function(column, name) {
         column.name = name;
