@@ -51,9 +51,13 @@ define(module, function(exports, require, make) {
     },
 
     send: function(data, options, done) {
-      log.socket('SEND', qp.stringify(data));
-      if (this.json) data = JSON.stringify(data, null, 2);
-      this.ws.send(data, options, done);
+      if (this.ws) {
+        log.socket('SEND', '#' + this.user_id, qp.stringify(data));
+        if (this.json) data = JSON.stringify(data, null, 2);
+        this.ws.send(data, options, done);
+      } else {
+        log.socket('SEND', 'Failed. Socket closed;', this.key);
+      }
     },
 
     close: function(code, message) {
