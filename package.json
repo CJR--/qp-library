@@ -12,7 +12,7 @@
     "pg": "4.x",
     "qp-define": "1.x",
     "qp-utility": "1.x",
-    "semver": "^5.3.0",
+    "semver": "5.x",
     "useragent": "2.x",
     "ws": "1.x"
   },
