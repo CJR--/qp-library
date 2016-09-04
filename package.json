@@ -9,7 +9,7 @@
     "dotenv": "^2.0.0",
     "mime": "1.x",
     "mustache": "2.x",
-    "pg": "4.x",
+    "pg": "6.x",
     "qp-define": "1.x",
     "qp-utility": "1.x",
     "semver": "5.x",
