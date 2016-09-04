@@ -1,7 +1,6 @@
 [![npm license][licence-image]][licence-url]
 [![npm version][npm-version-image]][npm-version-url]
 [![dependency status][david-dm-image]][david-dm-url]
-[![dev dependency status][david-dm-dev-image]][david-dm-dev-url]
 
 javascript utility object library.
 
