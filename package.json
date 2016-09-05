@@ -8,13 +8,13 @@
   "dependencies": {
     "dotenv": "^2.0.0",
     "mime": "1.x",
-    "mustache": "2.x",
+    "mustache": "^2.2.1",
     "pg": "6.x",
     "qp-define": "1.x",
     "qp-utility": "1.x",
     "semver": "5.x",
     "useragent": "2.x",
-    "ws": "1.x"
+    "ws": "^1.1.1"
   },
   "repository": {
     "type": "git",
