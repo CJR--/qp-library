@@ -10,7 +10,7 @@ module.exports = function(bump, filename, nosave) {
   if (version) {
     if (bump) {
       package_file.version = semver.inc(version, bump);
-      if (nosave == false) {
+      if (!nosave) {
         fs.writeFileSync(filename, JSON.stringify(package_file, null, '  '));
       }
       return { from: version, to: package_file.version, bump: bump };
