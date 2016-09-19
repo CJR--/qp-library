@@ -192,8 +192,11 @@ define(module, function(exports, require, make) {
     send: function(req_url, req, res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
-        log(log.magenta(res.statusCode), log.blue(qp.rpad(req.method, 4)), req_url.fullname);
-        if (arguments.length === 4 && !data) {
+        var status_color = status < 200 ? 'magenta' : status < 300 ? 'green' : status < 400 ? 'yellow' : 'white_red';
+        var method_color = status >= 400 ? 'white_red' : 'blue';
+        var url_color = status >= 400 ? 'white_red' : 'white';
+        log(log[status_color](status), log[method_color](qp.rpad(req.method, 4)), log[url_color](req_url.fullname));
+        if (arguments.length === 3) {
           res.writeHead(204, this.headers);
           res.end();
         } else {
