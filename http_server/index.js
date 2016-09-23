@@ -13,12 +13,14 @@ define(module, function(exports, require, make) {
   var fso = require('qp-library/fso');
   var url = require('qp-library/url');
   var exit = require('qp-library/exit');
+  var term = require('qp-library/term');
   var log = require('qp-library/log');
 
   make({
 
     ns: 'qp-library/http_server',
 
+    title: '',
     name: '',
     port: 80,
     www: '',
@@ -227,6 +229,7 @@ define(module, function(exports, require, make) {
     on_request: function(method, url, send) { send(204); },
 
     on_start: function() {
+      term.set_title(this.title || this.name);
       log(log.blue_white(' *** %s:%s *** '), this.name, this.port);
     },
 
