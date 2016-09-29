@@ -74,6 +74,10 @@ define(module, function(exports, require, make) {
       return this.field('int', 64, { foreign: true, table: table });
     },
 
+    foreign_ids: function(table) {
+      return this.field('int', 64, { foreign: true, table: table, array: true });
+    },
+
     created: function() {
       return this.field('datetime');
     },
