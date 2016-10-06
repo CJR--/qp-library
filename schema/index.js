@@ -19,8 +19,10 @@ define(module, function(exports, require, make) {
     build: function(_exports, schema) {
       schema.create = this.create.bind(this, schema.columns);
       schema.table = { name: schema.table };
+      schema.fields = { managed: [], all: [] };
       qp.each_own(schema.columns, function(column, name) {
         column.name = name;
+        if (column.managed) schema.fields.managed.push(name); else schema.fields.all.push(name);
       });
       _exports(schema);
     },
@@ -67,7 +69,7 @@ define(module, function(exports, require, make) {
     },
 
     primary: function() {
-      return this.field('int', 64, { primary: true });
+      return this.field('int', 64, { primary: true, managed: true });
     },
 
     foreign: function(table) {
@@ -79,11 +81,11 @@ define(module, function(exports, require, make) {
     },
 
     created: function() {
-      return this.field('datetime');
+      return this.field('datetime', { managed: true });
     },
 
     modified: function() {
-      return this.field('datetime');
+      return this.field('datetime', { managed: true });
     }
 
   });
