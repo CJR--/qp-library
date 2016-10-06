@@ -11,11 +11,10 @@ define(module, (exports, require, make) => {
 
     connection: null,
 
-    initialise: function(data) {
-      return typeof data === 'object' ? data : { id: data };
-    },
-
     select: function(config) {
+      if (qp.is(config.model, 'number')) {
+        config.model = { id: config.model.id };
+      }
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
       log(cmd.pg.text);
@@ -27,7 +26,11 @@ define(module, (exports, require, make) => {
           done(new Error('Select cannot return multiple rows'));
         } else {
           log(pg_result.rows[0]);
-          done(null, pg_result.rows[0]);
+          if (config.model) {
+            done(null, config.model.create(pg_result.rows[0], config.options));
+          } else {
+            done(null, pg_result.rows[0]);
+          }
         }
       });
     },
@@ -42,9 +45,30 @@ define(module, (exports, require, make) => {
           done(error);
         } else {
           log(result.rows.length, 'rows');
-          done(null, result.rows);
+          if (config.model) {
+            done(null, qp.map(result.rows, data => config.model.create(data, config.options)));
+          } else {
+            done(null, result.rows);
+          }
         }
       });
+    },
+
+    insert: function(config) {
+      config.model.created = config.model.modified = qp.now();
+      this.execute(config);
+    },
+
+    update: function(config) {
+      config.model.modified = qp.now();
+      this.execute(config);
+    },
+
+    delete: function(config) {
+      if (qp.is(config.model, 'number')) {
+        config.model = { id: config.model.id };
+      }
+      this.execute(config);
     },
 
     execute: function(config) {
@@ -56,6 +80,7 @@ define(module, (exports, require, make) => {
         if (error) { log(error); done(error); } else {
           var result = { cmd: cmd, row_count: pg_result.rowCount, rows: pg_result.rows };
           if (cmd.insert) result.id = pg_result.rows[0].id;
+          if (cmd.delete) result.count = pg_result.rows[0].count;
           log(pg_result.rows.length, 'rows');
           done(null, result);
         }
@@ -72,11 +97,13 @@ define(module, (exports, require, make) => {
       };
       cmd[qp.lower(type)] = true;
       var values = config.values || [];
-      var data = config.data || {};
+      var model = config.model || {};
       cmd.text = text.replace(named_param_re, function(match) {
-        values.push(data[match.slice(1)]);
+        values.push(model[match.slice(1)]);
         return '$' + values.length;
       });
+      cmd.created = model.created;
+      cmd.modified = model.modified;
       if (cmd.insert) cmd.text += ' RETURNING id';
       cmd.pg = { name: cmd.name, text: cmd.text, values: values };
       return cmd;
