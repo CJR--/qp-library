@@ -54,7 +54,7 @@ define(module, function(exports, require) {
   }
 
   function delete_file(file) {
-    if (fs.lstatSync(file).isFile()) {
+    if (fs.existsSync(file) && fs.lstatSync(file).isFile()) {
       fs.unlinkSync(file);
     }
   }
