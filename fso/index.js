@@ -23,6 +23,10 @@ define(module, function(exports, require, make) {
         return part.indexOf('.') === -1 ? '' : part;
       },
 
+      extension: function(filepath) {
+        return filepath.indexOf('.') !== -1 ? qp.split(filepath, '.').pop() : '';
+      },
+
       pathname: function(filepath) {
         var parts = qp.trim(filepath, path.sep).split(path.sep);
         if (parts.slice(-1)[0].indexOf('.') !== -1) {
