@@ -224,7 +224,7 @@ define(module, function(exports, require) {
 
     merge_files: function(files, options) {
       if (options && options.out_file) {
-        delete_file(options.out_file);
+        this.clear(options.out_file);
         var new_line = os.EOL + os.EOL;
         files.forEach(function(file) {
           if (fs.lstatSync(file).isFile()) {
