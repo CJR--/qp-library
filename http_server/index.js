@@ -91,7 +91,7 @@ define(module, function(exports, require, make) {
     },
 
     init: function(config) {
-      log.clear();
+      // log.clear();
       exit.handler(this.on_stop);
       if (config.authenticate) this.authenticate = config.authenticate.bind(this);
       if (config.on_request) this.on_request = config.on_request.bind(this);
@@ -229,12 +229,10 @@ define(module, function(exports, require, make) {
     on_request: function(method, url, send) { send(204); },
 
     on_start: function() {
-      term.set_title(this.title || this.name);
-      log(log.blue_white(' *** %s:%s *** '), this.name, this.port);
+      // log(log.blue_white(' *** %s:%s *** '), this.name, this.port);
     },
 
     on_stop: function() {
-      log('Stopped');
       process.exit(0);
     },
 
