@@ -35,6 +35,10 @@ define(module, function(exports, require) {
     }
   };
 
+  log.socket = function(type, _1, _2, _3) {
+    console.log(log.yellow(qp.rpad(type, 8)), _1 || '', _2 || '', _3 || '');
+  };
+
   log.blue_white = function(s) { return '\x1b[47m\x1b[34m' + s + '\x1b[0m\x1b[0m'; };
   log.white_red = function(s) { return '\x1b[41m\x1b[37m' + s + '\x1b[0m\x1b[0m'; };
   log.yellow_black = function(s) { return '\x1b[43m\x1b[30m' + s + '\x1b[0m\x1b[0m'; };
