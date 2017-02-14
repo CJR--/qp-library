@@ -67,6 +67,17 @@ define(module, function(exports, require) {
       return fs.statSync(path.join.apply(null, arguments));
     },
 
+    touch: function() {
+      var file = path.join.apply(null, arguments);
+      if (this.exists(file)) {
+        var fd = fs.openSync(file, 'r');
+        var time = (new Date()).getTime();
+        fs.futimesSync(fd, time, time);
+      } else {
+        this.write(file, '');
+      }
+    },
+
     exists: function() {
       return fs.existsSync(path.join.apply(null, arguments));
     },
