@@ -69,10 +69,21 @@ define(module, function(exports, require) {
 
     touch: function() {
       var file = path.join.apply(null, arguments);
-      if (this.exists(file)) {
-        var fd = fs.openSync(file, 'r');
+      var stat = fs.statSync(file);
+      if (stat.isFile()) {
         var time = (new Date()).getTime();
-        fs.futimesSync(fd, time, time);
+        fs.utimesSync(file, time, time);
+      } else {
+        this.write(file, '');
+      }
+    },
+
+    modify: function() {
+      var file = path.join.apply(null, arguments);
+      var stat = fs.statSync(file);
+      if (stat.isFile()) {
+        var time = (new Date()).getTime();
+        fs.utimesSync(file, stat.atime, time);
       } else {
         this.write(file, '');
       }
