@@ -69,8 +69,7 @@ define(module, function(exports, require) {
 
     touch: function() {
       var file = path.join.apply(null, arguments);
-      var stat = fs.statSync(file);
-      if (stat.isFile()) {
+      if (this.exists(file)) {
         var time = (new Date()).getTime();
         fs.utimesSync(file, time, time);
       } else {
@@ -80,8 +79,8 @@ define(module, function(exports, require) {
 
     modify: function() {
       var file = path.join.apply(null, arguments);
-      var stat = fs.statSync(file);
-      if (stat.isFile()) {
+      if (this.exists(file)) {
+        var stat = fs.statSync(file);
         var time = (new Date()).getTime();
         fs.utimesSync(file, stat.atime, time);
       } else {
