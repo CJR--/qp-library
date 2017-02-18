@@ -9,8 +9,10 @@ module.exports = function(bump, filename, nosave) {
   var version = semver.valid(package_file.version);
   if (version) {
     if (bump) {
-      package_file.version = semver.inc(version, bump);
-      if (!nosave) {
+      if (bump !== 'none') {
+        package_file.version = semver.inc(version, bump);
+      }
+      if (!nosave && bump !== 'none') {
         fs.writeFileSync(filename, JSON.stringify(package_file, null, '  '));
       }
       return { from: version, to: package_file.version, bump: bump };
