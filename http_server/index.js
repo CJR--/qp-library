@@ -1,19 +1,14 @@
 define(module, function(exports, require, make) {
 
-  var net = require('net');
   var http = require('http');
   var fs = require('fs');
-  var crypto = require('crypto');
   var domain = require('domain');
   var useragent = require('useragent');
   var mustache = require('mustache');
   var mime = require('mime');
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
-  var fso = require('qp-library/fso');
   var url = require('qp-library/url');
-  var exit = require('qp-library/exit');
-  var term = require('qp-library/term');
   var log = require('qp-library/log');
 
   make({
@@ -43,7 +38,6 @@ define(module, function(exports, require, make) {
 
     http_server: null,
     enable_domain: true,
-    _setup: null,
 
     mime_types: {
       text: mime.lookup('txt'),
@@ -90,26 +84,8 @@ define(module, function(exports, require, make) {
 
     },
 
-    init: function(config) {
-      // log.clear();
-      exit.handler(this.on_stop);
-      if (config.authenticate) this.authenticate = config.authenticate.bind(this);
-      if (config.on_request) this.on_request = config.on_request.bind(this);
-      if (config.on_notify) this.on_notify = config.on_notify.bind(this);
-      if (config.on_connect) this.on_connect = config.on_connect.bind(this);
-      if (config.on_connected) this.on_connected = config.on_connected.bind(this);
-      if (config.on_message) this.on_message = config.on_message.bind(this);
-      if (config.setup) this._setup = config.setup.bind(this);
-      this.create_server();
-    },
-
-    setup: function() {
-      this.http_server.listen(this.port);
-      if (this._setup) this._setup();
-      this.start();
-    },
-
     start: function() {
+      this.http_server.listen(this.port);
       this.on_start();
     },
 
@@ -132,6 +108,10 @@ define(module, function(exports, require, make) {
           this.run_request.call(this, req, res);
         }.bind(this));
       }
+    },
+
+    create_server_info: function(o) {
+      fss.write_json(this.www, 'info.json', o || {});
     },
 
     mime: function(type) {
@@ -228,13 +208,9 @@ define(module, function(exports, require, make) {
 
     on_request: function(method, url, send) { send(204); },
 
-    on_start: function() {
-      // log(log.blue_white(' *** %s:%s *** '), this.name, this.port);
-    },
+    on_start: function() { },
 
-    on_stop: function() {
-      process.exit(0);
-    },
+    on_stop: function() { process.exit(0); },
 
     on_error: function(http_request, http_response, error) {
       try {
