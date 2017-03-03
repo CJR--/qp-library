@@ -1,6 +1,7 @@
 define(module, function(exports, require, make) {
 
   var path = require('path');
+  var fs = require('fs');
   var mime = require('mime');
   var semver = require('semver');
   var qp = require('qp-utility');
@@ -147,6 +148,14 @@ define(module, function(exports, require, make) {
         return this.self.create({ path: this.path + path.sep + name + '.' + qp.ltrim(ext, '.') });
       } else if (this.is_directory) {
         return this.self.create({ path: this.path + name + '.' + qp.ltrim(ext, '.') });
+      }
+    },
+
+    watch: function(callback) {
+      if (this.exists) {
+        fs.watchFile(this.filename, { persistent: false, interval: 500 }, (last, stat) => {
+          if (last.mtime !== stat.mtime) callback(stat);
+        });
       }
     },
 
