@@ -19,7 +19,6 @@ define(module, function(exports, require, make) {
     name: '',
     port: 80,
     www: '',
-    external: {},
     favicon: 'none',
     headers: {},
     cors: {
@@ -108,10 +107,6 @@ define(module, function(exports, require, make) {
           this.run_request.call(this, req, res);
         }.bind(this));
       }
-    },
-
-    create_server_info: function(o) {
-      fss.write_json(this.www, 'info.json', o || {});
     },
 
     mime: function(type) {
