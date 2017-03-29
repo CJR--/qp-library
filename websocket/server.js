@@ -26,7 +26,14 @@ define(module, (exports, require, make) => {
       this.wss.on('connection', this.on_socket_connected);
     },
 
-    close: function() { },
+    stop: function(done) { this.stop_ws(done); },
+
+    stop_ws: function(done) {
+      qp.each(this.sockets, (socket) => socket.close());
+      this.wss.close(() => {
+        if (done) done();
+      });
+    },
 
     on_socket_connect: function(info, done) {
       if (this.on_connect) {

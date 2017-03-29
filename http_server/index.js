@@ -88,6 +88,18 @@ define(module, function(exports, require, make) {
       this.on_start();
     },
 
+    stop: function(done) {
+      // this.stop_http(done);
+      if (done) done();
+    },
+
+    stop_http: function(done) {
+      this.http_server.close(() => {
+        this.on_stop();
+        if (done) done();
+      });
+    },
+
     add_handler: function(key, handler) {
       this.handlers[key] = handler.bind(this);
     },
@@ -205,7 +217,7 @@ define(module, function(exports, require, make) {
 
     on_start: function() { },
 
-    on_stop: function() { process.exit(0); },
+    on_stop: function() { },
 
     on_error: function(http_request, http_response, error) {
       try {
