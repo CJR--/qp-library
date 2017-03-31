@@ -10,6 +10,7 @@ define(module, function(exports, require, make) {
   var fss = require('qp-library/fss');
   var url = require('qp-library/url');
   var log = require('qp-library/log');
+  var connections = require('qp-library/http_server/connections');
 
   make({
 
@@ -36,6 +37,8 @@ define(module, function(exports, require, make) {
     templates: {},
 
     http_server: null,
+    connections: null,
+    is_closing: false,
     enable_domain: true,
 
     mime_types: {
@@ -84,20 +87,18 @@ define(module, function(exports, require, make) {
     },
 
     start: function() {
+      if (!this.http_server) this.create_server();
+      connections.monitor(this.http_server);
       this.http_server.listen(this.port);
       this.on_start();
     },
 
     stop: function(done) {
-      // this.stop_http(done);
-      if (done) done();
-    },
-
-    stop_http: function(done) {
       this.http_server.close(() => {
         this.on_stop();
-        if (done) done();
+        qp.invoke_next(done);
       });
+      connections.close_all(true);
     },
 
     add_handler: function(key, handler) {
