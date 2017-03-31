@@ -50,7 +50,11 @@ define(module, function(exports, require) {
     keypress: function(handler) {
       process.stdin.setRawMode(true);
       process.stdin.setEncoding('utf8');
-      process.stdin.on('data', chr => handler(get_key(chr), chr));
+      process.stdin.on('data', chr => {
+        var key = get_key(chr);
+        if (key === 'ETX') process.exit(0);
+        handler(key, chr);
+      });
       process.stdin.resume();
     }
 
