@@ -20,15 +20,14 @@ define(module, (exports, require, make) => {
     init: function(options) {
       this.wss = new wss({
         server: options.http_server,
+        port: options.port,
         clientTracking: false,
         verifyClient: this.on_socket_connect
       });
       this.wss.on('connection', this.on_socket_connected);
     },
 
-    stop: function(done) { this.stop_ws(done); },
-
-    stop_ws: function(done) {
+    stop: function(done) {
       qp.each(this.sockets, (socket) => socket.close());
       this.wss.close(() => {
         if (done) done();
