@@ -37,7 +37,6 @@ define(module, function(exports, require, make) {
     templates: {},
 
     http_server: null,
-    connections: null,
     is_closing: false,
     enable_domain: true,
 

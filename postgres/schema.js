@@ -143,11 +143,9 @@ define(module, (exports, require, make) => {
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
-      log(cmd.pg.text);
-      this.connection.query(cmd.pg, (error, pg_result) => {
-        if (error) { done(error); } else {
-          var result = { cmd: cmd };
-          done(null, result);
+      this.connection.query(cmd, (error, pg_result) => {
+        if (error) { log(error); done(error); } else {
+          done(null, { cmd: cmd });
         }
       });
     },
@@ -161,9 +159,9 @@ define(module, (exports, require, make) => {
           text = config.text.join(' ');
         }
       }
-      var cmd = { name: config.name, text: text, type: config.type };
+      var cmd = { text: text, type: config.type };
+      if (config.name) cmd.name = config.name;
       cmd[qp.lower(cmd.type)] = true;
-      cmd.pg = { name: cmd.name, text: cmd.text };
       return cmd;
     }
 
