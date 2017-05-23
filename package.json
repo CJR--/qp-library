@@ -10,11 +10,11 @@
     "mime": "^1.x",
     "mustache": "^2.x",
     "pg": "^6.x",
-    "qp-define": "^1.x",
+    "qp-define": "^2.x",
     "qp-utility": "^1.x",
     "semver": "^5.x",
     "useragent": "^2.x",
-    "ws": "^2.x"
+    "ws": "^3.x"
   },
   "repository": {
     "type": "git",
