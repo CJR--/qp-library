@@ -25,8 +25,10 @@ define(module, function(exports, require) {
 
     init: function(options) {
       this.ws = options.ws;
-      this.parse_headers(this.ws.upgradeReq.headers);
-      this.parse_request(this.ws.upgradeReq);
+      if (this.ws.upgradeReq) {
+        this.parse_headers(this.ws.upgradeReq.headers);
+        this.parse_request(this.ws.upgradeReq);
+      }
       this.ws.on('close', () => {
         this.url = null;
         this.ws = null;

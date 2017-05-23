@@ -1,4 +1,4 @@
-define(module, (exports, require, make) => {
+define(module, (exports, require) => {
 
   var wss = require('ws').Server;
   var qp = require('qp-utility');
