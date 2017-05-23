@@ -2,6 +2,7 @@ define(module, function(exports, require, make) {
 
   var url = require('url');
   var pg = require('pg');
+  var qp = require('qp-utility');
   var pool = null;
 
   qp.module(exports, {
