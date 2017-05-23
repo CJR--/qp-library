@@ -1,12 +1,12 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  make('qp-library/event', {
+  qp.make(exports, {
 
-    properties: {
-      event_handlers: {}
-    },
+    ns: 'qp-library/event',
+
+    event_handlers: {},
 
     on: function(e, handler, scope) {
       handler = handler.bind(scope || this);

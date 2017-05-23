@@ -1,11 +1,11 @@
-define(module, (exports, require, make) => {
+define(module, (exports, require) => {
 
   var qp = require('qp-utility');
   var log = require('qp-library/log');
 
   function quote(text) { return '"' + text + '"'; }
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/postgres/schema',
 

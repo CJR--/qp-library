@@ -1,4 +1,4 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   // http://www.faqs.org/rfcs/rfc6455.html
 
@@ -6,7 +6,7 @@ define(module, function(exports, require, make) {
   var url = require('qp-library/url');
   var log = require('qp-library/log');
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/websocket',
 

@@ -9,8 +9,6 @@ define(module, function(exports, require) {
     console.log.apply(console, qp.compact(arguments));
   };
 
-  log.ns = 'qp-library/log';
-
   log.clear = function() {
     if (process.platform === 'win32') {
       process.stdout.write('\033c');
@@ -51,6 +49,6 @@ define(module, function(exports, require) {
   log.cyan = function(s) { return '\x1b[36m' + s + '\x1b[0m'; };
   log.white = function(s) { return '\x1b[37m' + s + '\x1b[0m'; };
 
-  exports(log);
+  exports('qp-library/log', log);
 
 });

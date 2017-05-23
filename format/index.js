@@ -1,11 +1,13 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
   var slice = Array.prototype.slice;
   var escape = { '\'': '\\\'', '\n': '\\n' };
 
-  make('qp-library/format', {
+  qp.make(exports, {
+
+    ns: 'qp-library/format',
 
     cache: {},
 

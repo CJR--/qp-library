@@ -1,10 +1,12 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
   var format = require('qp-library/format').create();
 
-  make('qp-library/string_db', {
+  qp.make(exports, {
+
+    ns: 'qp-library/string_db',
 
     db: null,
     cache: { },

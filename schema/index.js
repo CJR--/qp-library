@@ -1,4 +1,4 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
@@ -12,7 +12,7 @@ define(module, function(exports, require, make) {
     return date;
   }
 
-  exports({
+  qp.module(exports, {
 
     ns: 'qp-library/schema',
 

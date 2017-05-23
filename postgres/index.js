@@ -1,11 +1,11 @@
-define(module, (exports, require, make) => {
+define(module, (exports, require) => {
 
   var qp = require('qp-utility');
   var log = require('qp-library/log');
 
   var named_param_re = /\:[-a-zA-Z0-9_]+/g;
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/postgres',
 

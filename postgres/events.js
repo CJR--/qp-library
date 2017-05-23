@@ -1,10 +1,10 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var pg = require('pg');
   var qp = require('qp-utility');
   var log = require('qp-library/log');
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/postgres/events',
 

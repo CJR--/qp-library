@@ -1,13 +1,13 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  make('qp-library/stopwatch', {
+  qp.make(exports, {
 
-    properties: {
-      started: null,
-      stopped: null
-    },
+    ns: 'qp-library/stopwatch',
+
+    started: null,
+    stopped: null,
 
     init: function(config) {
       if (config.start) { this.start(); }

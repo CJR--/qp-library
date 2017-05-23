@@ -4,7 +4,7 @@ define(module, function(exports, require, make) {
   var pg = require('pg');
   var pool = null;
 
-  exports({
+  qp.module(exports, {
 
     connect: function(db_credentials, handler) {
       if (pool === null) {

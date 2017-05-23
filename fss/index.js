@@ -5,6 +5,7 @@ define(module, function(exports, require) {
   var os = require('os');
   var util = require('util');
   var path = require('path');
+  var qp = require('qp-utility');
 
   function make_directory(directory, mode) {
     directory = path.resolve(directory);
@@ -59,9 +60,7 @@ define(module, function(exports, require) {
     }
   }
 
-  exports({
-
-    ns: 'qp-library/fss',
+  qp.module(exports, 'qp-library/fss', {
 
     stat: function() {
       return fs.statSync(path.join.apply(null, arguments));

@@ -1,6 +1,8 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
-  make({
+  var qp = require('qp-utility');
+
+  qp.make(exports, {
 
     ns: 'qp-library/postgres/txn',
 

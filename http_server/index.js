@@ -1,4 +1,4 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var http = require('http');
   var fs = require('fs');
@@ -12,7 +12,7 @@ define(module, function(exports, require, make) {
   var log = require('qp-library/log');
   var connections = require('qp-library/http_server/connections');
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/http_server',
 

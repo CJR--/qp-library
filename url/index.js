@@ -1,11 +1,11 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
   var qp = require('qp-utility');
   var node_url = require('url');
   var qs = require('querystring');
   var mime = require('mime');
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/url',
 

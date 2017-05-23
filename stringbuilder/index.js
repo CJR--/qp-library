@@ -2,15 +2,15 @@ define(module, function(exports, require) {
 
   var qp = require('qp-utility');
 
-  make('qp-library/stringbuilder', {
+  qp.make(exports, {
 
-    properties: {
-      eol: '\n',
-      eol_re: /\n/,
-      indent_string: '  ',
-      line_re: /^(?=.)/gm,
-      items: []
-    },
+    ns: 'qp-library/stringbuilder',
+
+    eol: '\n',
+    eol_re: /\n/,
+    indent_string: '  ',
+    line_re: /^(?=.)/gm,
+    items: [],
 
     init: function() { },
 

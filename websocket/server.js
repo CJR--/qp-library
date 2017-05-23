@@ -6,7 +6,7 @@ define(module, (exports, require, make) => {
   var log = require('qp-library/log');
   var websocket = require('qp-library/websocket');
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/websocket/server',
 

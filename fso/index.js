@@ -7,7 +7,7 @@ define(module, function(exports, require, make) {
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
 
-  make({
+  qp.make(exports, {
 
     ns: 'qp-library/fso',
 
