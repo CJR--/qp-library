@@ -69,7 +69,7 @@ define(module, function(exports, require) {
     touch: function() {
       var file = path.join.apply(null, arguments);
       if (this.exists(file)) {
-        var time = (new Date()).getTime();
+        var time = Date.now() / 1000;
         fs.utimesSync(file, time, time);
       } else {
         this.write(file, '');
