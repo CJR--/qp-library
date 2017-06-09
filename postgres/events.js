@@ -1,8 +1,8 @@
 define(module, function(exports, require) {
 
-  var pg = require('pg');
   var qp = require('qp-utility');
   var log = require('qp-library/log');
+  var pg = require('qp-library/postgres/pool');
 
   qp.make(exports, {
 
@@ -13,7 +13,7 @@ define(module, function(exports, require) {
     auto: true,
 
     init: function(options) {
-      this.db = new pg.Client(options.db_credentials);
+      this.db = pg.create_client(options);
       this.db.on('error', this.on_error);
       this.db.on('end', this.on_stop);
       this.db.on('notification', this.on_notification);

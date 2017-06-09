@@ -1,29 +1,41 @@
-define(module, function(exports, require, make) {
+define(module, function(exports, require) {
 
-  var url = require('url');
-  var pg = require('pg');
+  var env = process.env;
   var qp = require('qp-utility');
+  var pg = require('pg');
   var pool = null;
 
-  qp.module(exports, {
+  var options = {
+    database: env.PG_DATABASE || env.PGDATABASE || '',
+    host: env.PG_HOST || 'localhost',
+    port: env.PG_PORT || env.PGPORT || 5432,
+    ssl: env.PG_SSL_MODE || env.PGSSLMODE || false,
+    max: env.PG_MAX_POOL || 20,
+    min: env.PG_MIN_POOL || 4,
+    idleTimeoutMillis: env.PG_IDLE_TIME || 1000,
+    user: env.PG_USER || env.PGUSER || '',
+    password: env.PG_PASS || env.PGPASSWORD || '',
+    application_name: env.APP_NAME || env.PGAPPNAME || ''
+  };
 
-    connect: function(db_credentials, handler) {
+  exports({
+
+    open: function(o) {
       if (pool === null) {
-        var conn = url.parse(db_credentials);
-        var auth = conn.auth.split(':');
-        pool = new pg.Pool({
-          user: auth[0],
-          password: auth[1],
-          host: conn.hostname,
-          port: conn.port,
-          database: conn.pathname.split('/')[1]
-        });
+        options = qp.options(o, options);
+        pool = new pg.Pool(options);
       }
-      return pool.connect(handler);
     },
 
+    create_client: function(o) {
+      return new pg.Client(qp.options(o, options));
+    },
+
+    connect: function() { return pool.connect.apply(null, arguments); },
+    query: function() { return pool.query.apply(null, arguments); },
+
     close: function() {
-      if (this.pool) pool.end();
+      if (pool !== null) pool.end();
     }
 
   });
