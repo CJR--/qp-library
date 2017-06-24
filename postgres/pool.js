@@ -31,8 +31,8 @@ define(module, function(exports, require) {
       return new pg.Client(qp.options(o, options));
     },
 
-    connect: function() { return pool.connect.apply(null, arguments); },
-    query: function() { return pool.query.apply(null, arguments); },
+    connect: function(handler) { return pool.connect(handler); },
+    query: function(cmd, values, handler) { return pool.query(cmd, values, handler); },
 
     close: function() {
       if (pool !== null) pool.end();
