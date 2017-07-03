@@ -18,7 +18,7 @@ define(module, (exports, require) => {
       this.connection.query(cmd, (error, pg_result) => {
         if (error) {
           done(error);
-        } else if (pg_result.rows > 1) {
+        } else if (pg_result.rowCount > 1) {
           done(new Error('Select cannot return multiple rows'));
         } else {
           if (config.model) {
