@@ -39,6 +39,11 @@ define(module, function(exports, require) {
     http_server: null,
     is_closing: false,
     enable_domain: true,
+    enable_session_cookie: false,
+    session_cookie_secure: false,
+    session_cookie_domain: false,
+    session_cookie_path: false,
+    session_cookie_expires: false,
 
     mime_types: {
       text: mime.lookup('txt'),
@@ -141,6 +146,22 @@ define(module, function(exports, require) {
       req.ua = useragent.parse(req.headers['user-agent']);
     },
 
+    set_session_cookie: function(res, sid) {
+      if (this.enable_session_cookie) {
+        var cookie = ['Session-Id=' + sid];
+        if (this.session_cookie_expires) {
+          var expires_dt = new Date();
+          expires_dt.setTime(expires_dt.getTime() + this.session_cookie_expires);
+          cookie.push('Expires=' + expires_dt.toUTCString());
+        }
+        if (this.session_cookie_path) cookie.push('Path=' + this.session_cookie_path);
+        if (this.session_cookie_domain) cookie.push('Domain=' + this.session_cookie_domain);
+        cookie.push('HttpOnly');
+        cookie.push('SameSite=Strict');
+        res.setHeader('Set-Cookie', cookie.join('; '));
+      }
+    },
+
     ip_address: function(req) {
       var ip_address;
       var forwarded = req.headers['x-forwarded-for'];
@@ -155,8 +176,14 @@ define(module, function(exports, require) {
     session_id: function(o) {
       if (qp.is(o, 'url')) {
         return o.get_params().sid || '';
-      } else {
+      } else if (o.headers['session-id']) {
         return o.headers['session-id'] || '';
+      } else if (this.enable_session_cookie) {
+        var cookie = o.headers['cookie'] || '';
+        var results = cookie.match('Session-Id' + '=(.*?)(;|$)');
+        return results ? results[1] : '';
+      } else {
+        return '';
       }
     },
 
