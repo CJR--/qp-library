@@ -9,12 +9,12 @@
     "dotenv": "^4.x",
     "mime": "^1.x",
     "mustache": "^2.x",
-    "pg": "^6.x",
+    "pg": "^7.1.2",
     "qp-define": "^2.x",
-    "qp-utility": "^1.x",
-    "semver": "^5.x",
-    "useragent": "^2.x",
-    "ws": "^3.x"
+    "qp-utility": "^1.4.12",
+    "semver": "^5.4.1",
+    "useragent": "^2.2.1",
+    "ws": "^3.1.0"
   },
   "repository": {
     "type": "git",

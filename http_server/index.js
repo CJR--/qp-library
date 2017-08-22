@@ -86,6 +86,10 @@ define(module, function(exports, require) {
       json: function(send, o, headers) {
         var data = JSON.stringify(o, null, 2);
         send(200, { mime: this.mime('json'), size: Buffer.byteLength(data) }, data, headers);
+      },
+
+      redirect: function(send, location) {
+        send(302, null, null, { 'Location': location });
       }
 
     },
@@ -230,7 +234,7 @@ define(module, function(exports, require) {
     },
 
     create_headers: function(stat, headers) {
-      if (!stat) { return this.headers; }
+      if (!stat) { return qp.assign({}, this.headers, headers); }
       stat.mtime = stat.mtime || qp.now();
       return qp.assign({
         'ETag': JSON.stringify([stat.ino || 'x', stat.size, stat.mtime.getTime()].join('-')),
