@@ -75,6 +75,10 @@ define(module, function(exports, require) {
 
     contains: function(test) { return qp.contains(this.fullname, test); },
 
+    is_root_directory: function() {
+      return /^\/[a-zA-Z0-9_-]+\/$/.test(this.fullname);
+    },
+
     set_ext: function(ext) {
       if (this.is_file) {
         return this.self.create({ url: this.path + this.name + '.' + qp.ltrim(ext, '.') });
