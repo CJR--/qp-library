@@ -1,20 +1,20 @@
 {
   "name": "qp-library",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "javascript utility object library.",
   "main": "index.js",
   "author": "CJR",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^4.x",
-    "mime": "^1.x",
+    "mime": "^2.0.3",
     "mustache": "^2.x",
-    "pg": "^7.1.2",
+    "pg": "^7.3.0",
     "qp-define": "^2.x",
-    "qp-utility": "^1.4.12",
+    "qp-utility": "^1.4.13",
     "semver": "^5.4.1",
     "useragent": "^2.2.1",
-    "ws": "^3.1.0"
+    "ws": "^3.2.0"
   },
   "repository": {
     "type": "git",
