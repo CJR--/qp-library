@@ -132,7 +132,7 @@ define(module, function(exports, require) {
           this.has_version = qp.not_empty(this.version);
         }
       }
-      this.mime = mime.lookup(this.fullname);
+      this.mime = mime.getType(this.fullname);
     },
 
     set_ext: function(ext) {

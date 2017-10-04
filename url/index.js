@@ -64,7 +64,7 @@ define(module, function(exports, require) {
         }
         this.path = this.fullname;
       }
-      this.mime = mime.lookup(this.fullname);
+      this.mime = mime.getType(this.fullname);
     },
 
     equals: function(test) { return this.fullname === test;  },

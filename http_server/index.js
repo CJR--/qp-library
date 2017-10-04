@@ -46,12 +46,12 @@ define(module, function(exports, require) {
     session_cookie_expires: false,
 
     mime_types: {
-      text: mime.lookup('txt'),
-      html: mime.lookup('html'),
-      css: mime.lookup('css'),
-      js: mime.lookup('js'),
-      json: mime.lookup('json'),
-      ico: mime.lookup('ico')
+      text: mime.getType('txt'),
+      html: mime.getType('html'),
+      css: mime.getType('css'),
+      js: mime.getType('js'),
+      json: mime.getType('json'),
+      ico: mime.getType('ico')
     },
 
     handlers: {
@@ -131,7 +131,7 @@ define(module, function(exports, require) {
     },
 
     mime: function(type) {
-      return this.mime_types[type] || (this.mime_types[type] = mime.lookup(type));
+      return this.mime_types[type] || (this.mime_types[type] = mime.getType(type));
     },
 
     read_data: function(req, done) {
