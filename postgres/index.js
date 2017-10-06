@@ -3,7 +3,7 @@ define(module, (exports, require) => {
   var qp = require('qp-utility');
   var log = require('qp-library/log');
 
-  var named_param_re = /\:[-a-zA-Z0-9_]+/g;
+  var named_param_re = /:[-a-zA-Z0-9_]+/g;
 
   qp.make(exports, {
 
@@ -13,35 +13,35 @@ define(module, (exports, require) => {
 
     select: function(config) {
       if (qp.is(config.model, 'number')) config.model = { id: config.model.id };
-      var done = config.done || qp.noop;
       var cmd = this.prepare(config);
       this.connection.query(cmd, (error, pg_result) => {
         if (error) {
-          done(error);
+          qp.call(config.failure, error);
+          qp.call(config.done, error);
         } else if (pg_result.rowCount > 1) {
-          done(new Error('Select cannot return multiple rows'));
+          var ex = new Error('Select cannot return multiple rows');
+          qp.call(config.failure, ex);
+          qp.call(config.done, ex);
         } else {
-          if (config.model) {
-            done(null, config.model.create(pg_result.rows[0], config.options));
-          } else {
-            done(null, pg_result.rows[0]);
-          }
+          var result = pg_result.rows[0];
+          if (config.model) result = config.model.create(result, config.options);
+          qp.call(config.success, result);
+          qp.call(config.done, null, result);
         }
       });
     },
 
     select_all: function(config) {
-      var done = config.done || qp.noop;
       var cmd = this.prepare(config);
-      this.connection.query(cmd, (error, result) => {
+      this.connection.query(cmd, (error, pg_result) => {
         if (error) {
-          done(error);
+          qp.call(config.failure, error);
+          qp.call(config.done, error);
         } else {
-          if (config.model) {
-            done(null, qp.map(result.rows, data => config.model.create(data, config.options)));
-          } else {
-            done(null, result.rows);
-          }
+          var result = pg_result.rows;
+          if (config.model) qp.map(result, row => config.model.create(row, config.options));
+          qp.call(config.success, result);
+          qp.call(config.done, null, result);
         }
       });
     },
@@ -64,14 +64,18 @@ define(module, (exports, require) => {
     },
 
     execute: function(config) {
-      var done = config.done || qp.noop;
       var cmd = this.prepare(config);
       this.connection.query(cmd, (error, pg_result) => {
-        if (error) { log(error); done(error); } else {
-          var result = { cmd: cmd, row_count: pg_result.rowCount, rows: pg_result.rows };
-          if (cmd.insert) result.id = pg_result.rows[0].id;
-          if (cmd.delete) result.count = pg_result.rows[0].count;
-          done(null, result);
+        if (error) {
+          qp.call(config.failure, error);
+          qp.call(config.done, error);
+        } else {
+          var rows = pg_result.rows;
+          var result = { cmd: cmd, row_count: pg_result.rowCount, rows: rows };
+          if (cmd.insert) result.id = rows[0].id;
+          if (cmd.delete) result.count = rows[0].count;
+          qp.call(config.success, result);
+          qp.call(config.done, null, result);
         }
       });
     },
