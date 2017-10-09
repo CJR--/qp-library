@@ -41,7 +41,7 @@ define(module, (exports, require) => {
           if (done && error) {
             done(false, error.code, error.message);
           } else if (done) {
-            done(true);
+            done(error === null);
           }
         });
       } else if (done) {
@@ -49,29 +49,33 @@ define(module, (exports, require) => {
       }
     },
 
-    on_socket_connected: function(ws) {
+    on_socket_connected: function(ws, req) {
       var socket = websocket.create({ ws: ws });
       ws.on('error', (e) => this.on_socket_error(socket, e));
       ws.on('close', (code, message) => this.on_socket_close(socket, code, message));
       if (this.on_connected) {
-        this.on_connected(socket, (error, connect) => {
-          if (error) { socket.close(error.code, error.message); } else {
+        var req_url = url.create({ url: req.url });
+        this.on_connected(req_url, socket, req, (error, settings) => {
+          if (error) {
+            socket.close(error.code, error.message);
+          } else {
+            qp.merge(socket, settings);
             this.on_socket_open(socket);
-            ws.on('message', (data, flags) => this.on_socket_message(socket, data, flags));
+            ws.on('message', data => this.on_socket_message(socket, data));
           }
         });
       } else {
         this.on_socket_open(socket);
-        ws.on('message', (data, flags) => this.on_socket_message(socket, data, flags));
+        ws.on('message', data => this.on_socket_message(socket, data));
       }
     },
 
-    on_socket_message: function(socket, data, flags) {
+    on_socket_message: function(socket, data) {
       if (socket.json) data = JSON.parse(data);
-      log.socket('MESSAGE', qp.stringify(data));
+      log.socket('MSG', qp.stringify(data));
       if (this.on_message) {
         this.on_message(socket, data, function(error, result) {
-          if (error) return socket.send(error); else socket.send(result);
+          if (error) socket.send(error); else socket.send(result);
         });
       }
     },
@@ -86,7 +90,7 @@ define(module, (exports, require) => {
     },
 
     on_socket_close: function(socket, code, message) {
-      log.socket('CLOSE', code, message || '');
+      log.socket('SHUT', code, message || '');
       qp.remove(this.sockets, socket);
     }
 
