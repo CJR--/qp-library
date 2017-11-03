@@ -12,7 +12,6 @@ define(module, (exports, require) => {
     connection: null,
 
     select: function(config) {
-      if (qp.is(config.model, 'number')) config.model = { id: config.model.id };
       var cmd = this.prepare(config);
       this.connection.query(cmd, (error, pg_result) => {
         if (error) {
@@ -24,7 +23,6 @@ define(module, (exports, require) => {
           qp.call(config.done, ex);
         } else {
           var result = pg_result.rows[0];
-          if (config.model) result = config.model.create(result, config.options);
           qp.call(config.success, result);
           qp.call(config.done, null, result);
         }
@@ -39,7 +37,6 @@ define(module, (exports, require) => {
           qp.call(config.done, error);
         } else {
           var result = pg_result.rows;
-          if (config.model) qp.map(result, row => config.model.create(row, config.options));
           qp.call(config.success, result);
           qp.call(config.done, null, result);
         }
