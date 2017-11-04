@@ -50,12 +50,12 @@ define(module, (exports, require) => {
     },
 
     on_socket_connected: function(ws, req) {
-      var socket = websocket.create({ ws: ws });
+      var req_url = url.create({ url: req.url });
+      var socket = websocket.create({ socket: ws, url: req_url, headers: req.headers });
       ws.on('error', (e) => this.on_socket_error(socket, e));
       ws.on('close', (code, message) => this.on_socket_close(socket, code, message));
       if (this.on_connected) {
-        var req_url = url.create({ url: req.url });
-        this.on_connected(req_url, socket, req, (error, settings) => {
+        this.on_connected(socket, (error, settings) => {
           if (error) {
             socket.close(error.code, error.message);
           } else {

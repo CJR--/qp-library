@@ -3,20 +3,17 @@ define(module, function(exports, require) {
   // http://www.faqs.org/rfcs/rfc6455.html
 
   var qp = require('qp-utility');
-  var url = require('qp-library/url');
   var log = require('qp-library/log');
 
   qp.make(exports, {
 
     ns: 'qp-library/websocket',
 
-    ws: null,
+    socket: null,
 
     key: '',
     session_id: '',
-    user_id: '',
     ua: '',
-    url: '',
     version: '',
     channel: '',
     protocols: null,
@@ -24,14 +21,12 @@ define(module, function(exports, require) {
     json: false,
 
     init: function(options) {
-      this.ws = options.ws;
-      if (this.ws.upgradeReq) {
-        this.parse_headers(this.ws.upgradeReq.headers);
-        this.parse_request(this.ws.upgradeReq);
-      }
-      this.ws.on('close', () => {
+      this.socket = options.socket;
+      this.parse_headers(options.headers);
+      this.parse_url(options.url);
+      this.socket.on('close', () => {
         this.url = null;
-        this.ws = null;
+        this.socket = null;
       });
     },
 
@@ -43,27 +38,26 @@ define(module, function(exports, require) {
       this.json = qp.contains(this.protocols, 'json-message');
     },
 
-    parse_request: function(request) {
-      this.url = url.create({ url: request.url });
-      if (this.url.parts.length === 2) this.channel = this.url.parts[1];
-      if (this.url.parts.length === 3) {
-        this.session_id = this.url.parts[1];
-        this.channel = this.url.parts[2];
+    parse_url: function(url) {
+      if (url.parts.length === 2) this.channel = url.parts[1];
+      if (url.parts.length === 3) {
+        this.session_id = url.parts[1];
+        this.channel = url.parts[2];
       }
     },
 
     send: function(data, options, done) {
-      if (this.ws) {
+      if (this.socket) {
         log.socket('SEND', '#' + this.user_id, qp.stringify(data));
         if (this.json) data = JSON.stringify(data, null, 2);
-        this.ws.send(data, options, done);
+        this.socket.send(data, options, done);
       } else {
         log.socket('SEND', 'Failed. Socket closed;', this.key);
       }
     },
 
     close: function(code, message) {
-      this.ws.close(code, message || '');
+      this.socket.close(code, message || '');
     }
 
   });
