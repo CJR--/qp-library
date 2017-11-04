@@ -3,8 +3,6 @@ define(module, (exports, require) => {
   var qp = require('qp-utility');
   var log = require('qp-library/log');
 
-  var named_param_re = /:[-a-zA-Z0-9_]+/g;
-
   qp.make(exports, {
 
     ns: 'qp-library/postgres',
@@ -12,89 +10,74 @@ define(module, (exports, require) => {
     connection: null,
 
     select: function(config) {
-      var cmd = this.prepare(config);
-      this.connection.query(cmd, (error, pg_result) => {
-        if (error) {
-          qp.call(config.failure, error);
-          qp.call(config.done, error);
-        } else if (pg_result.rowCount > 1) {
-          var ex = new Error('Select cannot return multiple rows');
-          qp.call(config.failure, ex);
-          qp.call(config.done, ex);
-        } else {
-          var result = pg_result.rows[0];
-          qp.call(config.success, result);
-          qp.call(config.done, null, result);
-        }
-      });
+      config.select = true;
+      this.execute(this.prepare(config), this.handlers(config));
     },
 
     select_all: function(config) {
-      var cmd = this.prepare(config);
-      this.connection.query(cmd, (error, pg_result) => {
-        if (error) {
-          qp.call(config.failure, error);
-          qp.call(config.done, error);
-        } else {
-          var result = pg_result.rows;
-          qp.call(config.success, result);
-          qp.call(config.done, null, result);
-        }
-      });
+      config.select = true;
+      config.select_all = true;
+      this.execute(this.prepare(config), this.handlers(config));
     },
 
     insert: function(config) {
-      config.model.created = config.model.modified = qp.now();
-      this.execute(config);
+      config.insert = true;
+      this.execute(this.prepare(config), this.handlers(config));
     },
 
     update: function(config) {
-      config.model.modified = qp.now();
-      this.execute(config);
+      config.update = true;
+      this.execute(this.prepare(config), this.handlers(config));
     },
 
     delete: function(config) {
-      if (qp.is(config.model, 'number')) {
-        config.model = { id: config.model.id };
-      }
-      this.execute(config);
+      config.delete = true;
+      this.execute(this.prepare(config), this.handlers(config));
     },
 
-    execute: function(config) {
-      var cmd = this.prepare(config);
+    execute: function(cmd, handlers) {
       this.connection.query(cmd, (error, pg_result) => {
+        if ((cmd.select && !cmd.select_all) && pg_result.rowCount > 1) {
+          error = new Error('Select cannot return multiple rows');
+        }
+
         if (error) {
-          qp.call(config.failure, error);
-          qp.call(config.done, error);
-        } else {
+          log(cmd.text);
+          log.error(error);
+          qp.call(handlers.failure, error);
+          qp.call(handlers.done, error);
+        } else if (cmd.non_query) {
           var rows = pg_result.rows;
-          var result = { cmd: cmd, row_count: pg_result.rowCount, rows: rows };
+          let result = { row_count: pg_result.rowCount, rows: rows };
           if (cmd.insert) result.id = rows[0].id;
           if (cmd.delete) result.count = rows[0].count;
-          qp.call(config.success, result);
-          qp.call(config.done, null, result);
+          qp.call(handlers.success, result);
+          qp.call(handlers.done, null, result);
+        } else if (cmd.select) {
+          let result = cmd.select_all ? pg_result.rows : pg_result.rows[0];
+          qp.call(handlers.success, result);
+          qp.call(handlers.done, null, result);
         }
       });
+    },
+
+    handlers: function(config) {
+      return { success: config.success, failure: config.failure, done: config.done };
     },
 
     prepare: function(config) {
       var text = qp.is(config.text, 'array') ? config.text.join(' ') : config.text;
-      var type = text.slice(0, 6);
       var cmd = {
-        type: type,
-        non_query: qp.inlist(type, 'INSERT', 'UPDATE', 'DELETE')
+        name: config.name || null,
+        non_query: config.insert || config.update || config.delete,
+        select: config.select || false,
+        select_all: config.select_all || false,
+        insert: config.insert || false,
+        update: config.update || false,
+        delete: config.delete || false,
+        text: text,
+        values: config.values || []
       };
-      cmd[qp.lower(type)] = true;
-      var model = config.model || {};
-      if (config.name) cmd.name = config.name;
-      cmd.values = config.values || [];
-      cmd.text = text.replace(named_param_re, function(match) {
-        cmd.values.push(model[match.slice(1)]);
-        return '$' + cmd.values.length;
-      });
-      if (model.created) cmd.created = model.created;
-      if (model.modified) cmd.modified = model.modified;
-      if (cmd.insert) cmd.text += ' RETURNING id';
       return cmd;
     }
 
