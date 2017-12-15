@@ -9,7 +9,7 @@ module.exports = function(config) {
       var values = config[key].options.split(',');
       for (var i = 0, l = values.length; i < l; i++) {
         if (args.indexOf('--' + values[i]) !== -1) {
-          options[key] = values[i];
+          options[key] = values[i] === key ? true : values[i];
           break;
         }
       }
