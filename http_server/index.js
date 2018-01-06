@@ -96,6 +96,7 @@ define(module, function(exports, require) {
 
     start: function() {
       if (!this.http_server) this.create_server();
+      process.on('SIGTERM', this.stop);
       connections.monitor(this.http_server);
       this.http_server.listen(this.port);
       this.on_start();
