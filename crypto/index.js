@@ -41,19 +41,34 @@ define(module, (exports, require) => {
       return result;
     },
 
-    create_password: function(length) {
+    create_password: function(length, segment) {
       var set0 = 'abcdfghjklmnpqrstwxyz';
       var set1 = 'ABCDFGHJKLMNPQRSTWXYZ';
       var set2 = '23456789';
-      var password = this.random_set(length, set0 + set1 + set2);
-      var lower = this.random_set(1, set0);
-      var upper = this.random_set(1, set1);
-      var number = this.random_set(1, set2);
-      return upper + number + password + lower;
+
+      var rnd_set = qp.shuffle(
+        qp.union(
+          this.random_set(length - 3, set0 + set1 + set2),
+          this.random_set(1, set0),
+          this.random_set(1, set1),
+          this.random_set(1, set2)
+        )
+      );
+
+      if (qp.is(segment, 'number')) {
+        return qp.map(qp.segment(rnd_set, segment), item => item.join('')).join('-');
+      } else {
+        return rnd_set.join('');
+      }
     },
 
-    create_id: function(length) {
-      return this.random_set(length, 'ABCDFGHJKLMNPQRSTWXYZ23456789');
+    create_code: function(length, segment) {
+      var set = this.random_set(length, 'ABCDFGHJKLMNPQRSTWXYZ23456789');
+      if (qp.is(segment, 'number')) {
+        return qp.map(qp.segment(set, segment), item => item.join('')).join('-');
+      } else {
+        return set.join('');
+      }
     },
 
     random_set: function(length, set0) {
@@ -64,7 +79,7 @@ define(module, (exports, require) => {
       for (var i = 0; i < length; i++) {
         set1[i] = set0[random[i] % set0_length];
       }
-      return set1.join('');
+      return set1;
     },
 
     hash_sha256: function() {
