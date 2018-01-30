@@ -217,6 +217,9 @@ define(module, function(exports, require) {
         if (arguments.length === 3) {
           res.writeHead(204, this.headers);
           res.end();
+        } else if (arguments.length === 4) {
+          res.writeHead(status, this.create_headers({ mime: this.mime('text'), size: 0 }));
+          res.end();
         } else {
           res.writeHead(status, this.create_headers(stat, headers));
           if (qp.is(data, 'string')) {
