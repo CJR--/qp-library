@@ -31,7 +31,11 @@ define(module, (exports, require) => {
                 def += ' SERIAL PRIMARY KEY';
               } else {
                 def += ' ' + column.type;
-                if (column.array) def += '[]';
+                if (column.type === 'numeric') {
+                  def += '(' + column.size + ',' + column.scale + ')';
+                } else if (column.array) {
+                  def += '[]';
+                }
               }
               return def;
             }).join(', '),
