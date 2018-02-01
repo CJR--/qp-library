@@ -21,6 +21,31 @@ define(module, (exports, require) => {
       });
     },
 
+    create_sequences: function(data, done) {
+      var sequences = qp.select(data.columns, (column) => {
+        if (column.sequence) {
+          return [ 'CREATE SEQUENCE', column.name + '_seq', 'OWNED BY', data.table.name + '.' + column.name ];
+        }
+      });
+
+      if (qp.empty(sequences)) done();
+      else this.execute({ text: sequences, done: done });
+    },
+
+    create_sequence: function(data, done) {
+      this.execute({
+        text: [ 'CREATE SEQUENCE', data.name ],
+        done: done
+      });
+    },
+
+    drop_sequence: function(data, done) {
+      this.execute({
+        text: [ 'DROP SEQUENCE IF EXISTS', data.name ],
+        done: done
+      });
+    },
+
     create_table: function(data, done) {
       this.execute({
         text: [
@@ -29,6 +54,10 @@ define(module, (exports, require) => {
               var def = column.name;
               if (column.primary) {
                 def += ' SERIAL PRIMARY KEY';
+              } else if (column.primary_key) {
+                def += ' INTEGER PRIMARY KEY';
+              } else if (column.unique) {
+                def += ' INTEGER';
               } else {
                 def += ' ' + column.type;
                 if (column.type === 'numeric') {
@@ -121,11 +150,12 @@ define(module, (exports, require) => {
     },
 
     create_triggers: function(data, done) {
-      if (qp.empty(data.triggers)) return done();
       var triggers = qp.map(data.triggers, (trigger) => {
         return this.create_trigger_command({ trigger: trigger, table: data.table });
       });
-      this.execute({ text: triggers, done: done });
+
+      if (qp.empty(triggers)) done();
+      else this.execute({ text: triggers, done: done });
     },
 
     create_trigger: function(data, done) {
@@ -147,6 +177,7 @@ define(module, (exports, require) => {
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
+      // log(cmd.text);
       this.connection.query(cmd, (error, pg_result) => {
         if (error) { log(error); done(error); } else {
           done(null, { cmd: cmd });
