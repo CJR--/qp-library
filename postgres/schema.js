@@ -11,6 +11,34 @@ define(module, (exports, require) => {
 
     connection: null,
 
+    create_user: function(data, done) {
+      this.execute({
+        text: [ 'CREATE USER', data.user, 'WITH PASSWORD', '\'' + data.password + '\'' ],
+        done: done
+      });
+    },
+
+    drop_user: function(data, done) {
+      this.execute({
+        text: [ 'DROP USER IF EXISTS', data.user ],
+        done: done
+      });
+    },
+
+    create_database: function(data, done) {
+      this.execute({
+        text: [ 'CREATE DATABASE', data.database.name, 'OWNER', data.user ],
+        done: done
+      });
+    },
+
+    drop_database: function(data, done) {
+      this.execute({
+        text: [ 'DROP DATABASE IF EXISTS', data.database.name ],
+        done: done
+      });
+    },
+
     grant: function(data, done) {
       this.execute({
         text: [
@@ -24,7 +52,7 @@ define(module, (exports, require) => {
     create_sequences: function(data, done) {
       var sequences = qp.select(data.columns, (column) => {
         if (column.sequence) {
-          return [ 'CREATE SEQUENCE', column.name + '_seq', 'OWNED BY', data.table.name + '.' + column.name ];
+          return [ 'CREATE SEQUENCE', data.table.name + '_' + column.name + '_seq', 'OWNED BY', data.table.name + '.' + column.name ];
         }
       });
 
