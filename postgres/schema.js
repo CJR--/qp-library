@@ -50,12 +50,10 @@ define(module, (exports, require) => {
     },
 
     create_sequences: function(data, done) {
-      var sequences = qp.select(data.columns, (column) => {
-        if (column.sequence) {
-          return [ 'CREATE SEQUENCE', data.table.name + '_' + column.name + '_seq', 'OWNED BY', data.table.name + '.' + column.name ];
-        }
+      var sequences = [];
+      qp.each_own(data.columns, (column) => {
+        if (column.sequence) sequences.push([ 'CREATE SEQUENCE', data.table.name + '_' + column.name + '_seq', 'OWNED BY', data.table.name + '.' + column.name ]);
       });
-
       if (qp.empty(sequences)) done();
       else this.execute({ text: sequences, done: done });
     },
