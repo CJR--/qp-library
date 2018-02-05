@@ -87,6 +87,11 @@ define(module, (exports, require) => {
       return crypto.createHash('sha256').update(s).digest('hex');
     },
 
+    hash_MD5: function() {
+      var s = qp.arg(arguments).join('');
+      return crypto.createHash('MD5').update(s).digest('hex');
+    },
+
     hash: function() { return this.hash_sha256.apply(this, arguments); },
 
     hmac_sha256: function(key, data) {
