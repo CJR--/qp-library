@@ -96,17 +96,25 @@ define(module, function(exports, require) {
 
     start: function() {
       if (!this.http_server) this.create_server();
-      process.on('SIGTERM', this.stop);
+
+      process.on('SIGTERM', function() {
+        log(log.red(' * SIGTERM * '));
+        this.stop(() => {
+          log(log.blue(' * SIGTERM * '));
+          process.exit(0);
+        });
+      }.bind(this));
+
       connections.monitor(this.http_server);
       this.http_server.listen(this.port);
       this.on_start();
     },
 
     stop: function(done) {
+      connections.close_all(true);
       this.http_server.close(() => {
         this.on_stop(done);
       });
-      connections.close_all(true);
     },
 
     add_handler: function(key, handler) {
