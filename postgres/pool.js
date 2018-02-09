@@ -3,6 +3,7 @@ define(module, function(exports, require) {
   var env = process.env;
   var qp = require('qp-utility');
   var pg = require('pg');
+  var log = require('qp-library/log');
   var pool = null;
 
   var options = {
@@ -15,8 +16,20 @@ define(module, function(exports, require) {
     idleTimeoutMillis: env.PG_IDLE_TIME || 1000,
     user: env.PG_USER || env.PGUSER || '',
     password: env.PG_PASS || env.PGPASSWORD || '',
-    application_name: env.APP_NAME || env.PGAPPNAME || ''
+    application_name: env.APP_NAME || env.PGAPPNAME || '',
+
+    on_connect: (client) => log_event('CONN', client),
+    on_aquire: (client) => log_event('OPEN', client),
+    on_remove: (client) => log_event('SHUT', client),
+    on_error: (error, client) => {
+      log.postgres('PG ', 'ERROR', error.message);
+      log_event('ERROR', client);
+    }
   };
+
+  function log_event(event_name, client) {
+    log.postgres(event_name, '{', 'total: ' + pool.totalCount + ',', 'idle: ' + pool.idleCount + ',', 'wait: ' + pool.waitingCount, '}');
+  }
 
   exports({
 
@@ -24,6 +37,10 @@ define(module, function(exports, require) {
       if (pool === null) {
         options = qp.options(o, options);
         pool = new pg.Pool(options);
+        pool.on('connect', options.on_connect);
+        pool.on('aquire', options.on_aquire);
+        pool.on('remove', options.on_remove);
+        pool.on('error', options.on_error);
       }
     },
 
@@ -32,7 +49,7 @@ define(module, function(exports, require) {
     },
 
     connect: function(handler) { return pool.connect(handler); },
-    
+
     query: function(cmd, values, handler) { return pool.query(cmd, values, handler); },
 
     close: function(done) {

@@ -39,8 +39,12 @@ define(module, function(exports, require) {
     }
   };
 
-  log.socket = function(type, _1, _2, _3) {
-    console.log(log.yellow(qp.rpad(type, 8)), _1 || '', _2 || '', _3 || '');
+  log.socket = function(type) {
+    console.log.apply(console, qp.union([log.yellow('WS  ' + qp.rpad(type, 4))], qp.rest(arguments)));
+  };
+
+  log.postgres = function(type) {
+    console.log.apply(console, qp.union([log.yellow('PG  ' + qp.rpad(type, 4))], qp.rest(arguments)));
   };
 
   if (debug) {
