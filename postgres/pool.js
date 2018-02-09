@@ -32,10 +32,11 @@ define(module, function(exports, require) {
     },
 
     connect: function(handler) { return pool.connect(handler); },
+    
     query: function(cmd, values, handler) { return pool.query(cmd, values, handler); },
 
-    close: function() {
-      if (pool !== null) pool.end();
+    close: function(done) {
+      if (pool === null) done(); else pool.end(done);
     }
 
   });

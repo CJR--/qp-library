@@ -46,8 +46,19 @@ define(module, function(exports, require) {
       });
     },
 
-    stop: function() {
-      if (this.db) this.db.end();
+    stop: function(done) {
+      if (this.db) {
+        this.db.end((error) => {
+          this.clear_handlers();
+          done(error);
+        });
+      } else {
+        this.clear_handlers();
+        done();
+      }
+    },
+
+    clear_handlers: function() {
       qp.each(this.channels, channel => channel.handler = null);
     },
 
