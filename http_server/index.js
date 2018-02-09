@@ -104,8 +104,7 @@ define(module, function(exports, require) {
 
     stop: function(done) {
       this.http_server.close(() => {
-        this.on_stop();
-        qp.invoke_next(done);
+        this.on_stop(done);
       });
       connections.close_all(true);
     },
@@ -256,7 +255,7 @@ define(module, function(exports, require) {
 
     on_start: function() { },
 
-    on_stop: function() { },
+    on_stop: function(done) { done(); },
 
     on_error: function(http_request, http_response, error) {
       try {
