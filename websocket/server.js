@@ -27,12 +27,12 @@ define(module, (exports, require) => {
       this.wss.on('connection', this.on_socket_connected);
     },
 
-    stop: function(done) {
+    close: function(done) {
       qp.each(this.sockets, (socket) => socket.close());
-      this.wss.close(() => {
-        if (done) done();
-      });
+      this.wss.close(done);
     },
+
+    get_id: function() { return this.id++; },
 
     on_socket_connect: function(info, done) {
       if (this.on_connect) {
@@ -51,7 +51,7 @@ define(module, (exports, require) => {
 
     on_socket_connected: function(ws, req) {
       var req_url = url.create({ url: req.url });
-      var socket = websocket.create({ socket: ws, url: req_url, headers: req.headers });
+      var socket = websocket.create({ id: qp.id(), socket: ws, url: req_url, headers: req.headers });
       ws.on('error', (e) => this.on_socket_error(socket, e));
       ws.on('close', (code, message) => this.on_socket_close(socket, code, message));
       if (this.on_connected) {
@@ -85,13 +85,13 @@ define(module, (exports, require) => {
     },
 
     on_socket_open: function(socket, e) {
-      log.socket('OPEN', socket.channel);
       qp.push(this.sockets, socket);
+      log.socket('OPEN', qp.stringify({ id: socket.id, total: this.sockets.length, name: socket.channel }));
     },
 
     on_socket_close: function(socket, code, message) {
-      log.socket('SHUT', code, message || '');
       qp.remove(this.sockets, socket);
+      log.socket('SHUT', qp.stringify({ id: socket.id, total: this.sockets.length, code: code, name: socket.channel }));
     }
 
   });

@@ -11,6 +11,7 @@ define(module, function(exports, require) {
 
     socket: null,
 
+    id: 0,
     key: '',
     session_id: '',
     ua: '',
