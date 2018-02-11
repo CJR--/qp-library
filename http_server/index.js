@@ -10,7 +10,6 @@ define(module, function(exports, require) {
   var fss = require('qp-library/fss');
   var url = require('qp-library/url');
   var log = require('qp-library/log');
-  var connections = require('qp-library/http_server/connections');
 
   qp.make(exports, {
 
@@ -98,23 +97,21 @@ define(module, function(exports, require) {
       if (!this.http_server) this.create_server();
 
       process.on('SIGTERM', function() {
-        log(log.red(' * SIGTERM * '));
         this.stop(() => {
-          log(log.blue(' * SIGTERM * '));
+          log(log.red(' * Process Terminated * '));
           process.exit(0);
         });
       }.bind(this));
 
-      connections.monitor(this.http_server);
       this.http_server.listen(this.port);
       this.on_start();
     },
 
     stop: function(done) {
-      connections.close_all(true);
-      this.http_server.close(() => {
-        this.on_stop(done);
-      });
+      qp.parallel([
+        (data, done) => this.http_server.close(done),
+        (data, done) => this.on_stop(done)
+      ], done);
     },
 
     add_handler: function(key, handler) {
