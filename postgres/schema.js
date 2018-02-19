@@ -11,6 +11,20 @@ define(module, (exports, require) => {
 
     connection: null,
 
+    create_schema: function(data, done) {
+      this.execute({
+        text: [ 'CREATE SCHEMA IF NOT EXISTS', data.schema_name ],
+        done: done
+      });
+    },
+
+    drop_schema: function(data, done) {
+      this.execute({
+        text: [ 'DROP SCHEMA IF EXISTS', data.schema_name, data.cascade ? 'CASCADE' : '' ],
+        done: done
+      });
+    },
+
     create_user: function(data, done) {
       this.execute({
         text: [ 'CREATE USER', data.user, 'WITH PASSWORD', '\'' + data.password + '\'' ],
@@ -27,7 +41,7 @@ define(module, (exports, require) => {
 
     create_database: function(data, done) {
       this.execute({
-        text: [ 'CREATE DATABASE', data.database.name, 'OWNER', data.user ],
+        text: [ 'CREATE DATABASE', data.database.name, 'WITH OWNER', data.user ],
         done: done
       });
     },
@@ -39,11 +53,20 @@ define(module, (exports, require) => {
       });
     },
 
-    grant: function(data, done) {
+    grant_schema: function(data, done) {
       this.execute({
         text: [
-          [ 'GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA', data.schema, 'TO', data.user ],
-          [ 'GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA', data.schema, 'TO', data.user ]
+          [ 'GRANT ALL PRIVILEGES ON SCHEMA', data.schema_name, 'TO', data.user ],
+        ],
+        done: done
+      });
+    },
+
+    grant_all_tables: function(data, done) {
+      this.execute({
+        text: [
+          [ 'GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA', data.schema_name, 'TO', data.user ],
+          [ 'GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA', data.schema_name, 'TO', data.user ]
         ],
         done: done
       });
@@ -52,7 +75,12 @@ define(module, (exports, require) => {
     create_sequences: function(data, done) {
       var sequences = [];
       qp.each_own(data.columns, (column) => {
-        if (column.sequence) sequences.push([ 'CREATE SEQUENCE', data.table.name + '_' + column.name + '_seq', 'OWNED BY', data.table.name + '.' + column.name ]);
+        if (column.sequence) {
+          sequences.push([
+            'CREATE SEQUENCE IF NOT EXISTS', data.table.fullname + '_' + column.name + '_seq',
+            'OWNED BY', data.table.fullname + '.' + column.name
+          ]);
+        }
       });
       if (qp.empty(sequences)) done();
       else this.execute({ text: sequences, done: done });
@@ -60,14 +88,30 @@ define(module, (exports, require) => {
 
     create_sequence: function(data, done) {
       this.execute({
-        text: [ 'CREATE SEQUENCE', data.name ],
+        text: [ 'CREATE SEQUENCE IF NOT EXISTS', data.sequence_name ],
+        done: done
+      });
+    },
+
+    set_sequence: function(data, done) {
+      this.execute({
+        text: [ 'SELECT setval(\'' + data.sequence_name + '\', ', data.value, ')' ],
+        done: done
+      });
+    },
+
+    initialise_sequence: function(data, done) {
+      this.execute({
+        text: [
+          'SELECT setval(\'' + data.sequence_name + '\', max(', data.field_name || 'id', ') + 1) FROM', data.table_name
+        ],
         done: done
       });
     },
 
     drop_sequence: function(data, done) {
       this.execute({
-        text: [ 'DROP SEQUENCE IF EXISTS', data.name ],
+        text: [ 'DROP SEQUENCE IF EXISTS', data.sequence_name ],
         done: done
       });
     },
@@ -75,7 +119,7 @@ define(module, (exports, require) => {
     create_table: function(data, done) {
       this.execute({
         text: [
-          'CREATE TABLE', quote(data.table.name), '(',
+          'CREATE TABLE IF NOT EXISTS', data.table.fullname, '(',
             qp.map(data.columns, column => {
               var def = column.name;
               if (column.primary) {
@@ -102,42 +146,42 @@ define(module, (exports, require) => {
 
     drop_table: function(data, done) {
       this.execute({
-        text: [ 'DROP TABLE IF EXISTS', quote(data.table.name) ],
+        text: [ 'DROP TABLE IF EXISTS', data.table.fullname ],
         done: done
       });
     },
 
     rename_table: function(data, done) {
       this.execute({
-        text: [ 'ALTER TABLE', data.table.name, 'RENAME TO', data.table.new_name ],
+        text: [ 'ALTER TABLE', data.table.fullname, 'RENAME TO', data.to ],
         done: done
       });
     },
 
     add_column: function(data, done) {
       this.execute({
-        text: [ 'ALTER TABLE', data.table.name, 'ADD COLUMN', data.column.name, data.column.type ],
+        text: [ 'ALTER TABLE', data.table.fullname, 'ADD COLUMN', data.column.name, data.column.type ],
         done: done
       });
     },
 
     remove_column: function(data, done) {
       this.execute({
-        text: [ 'ALTER TABLE', data.table.name, 'DROP COLUMN', data.column.name ],
+        text: [ 'ALTER TABLE', data.table.fullname, 'DROP COLUMN', data.column.name ],
         done: done
       });
     },
 
     change_column: function(data, done) {
       this.execute({
-        text: [ 'ALTER TABLE', data.table.name, 'ALTER COLUMN', data.column.name, 'TYPE', data.column.type ],
+        text: [ 'ALTER TABLE', data.table.fullname, 'ALTER COLUMN', data.column.name, 'TYPE', data.column.type ],
         done: done
       });
     },
 
     rename_column: function(data, done) {
       this.execute({
-        text: [ 'ALTER TABLE', data.table.name, 'RENAME COLUMN', data.column.name, 'TO', data.column.new_name ],
+        text: [ 'ALTER TABLE', data.table.fullname, 'RENAME COLUMN', data.column.name, 'TO', data.column.new_name ],
         done: done
       });
     },
@@ -149,7 +193,7 @@ define(module, (exports, require) => {
 
     drop_trigger: function(data, done) {
       this.execute({
-        text: [ 'DROP TRIGGER IF EXISTS', data.trigger.name, 'ON', data.table.name, 'CASCADE' ],
+        text: [ 'DROP TRIGGER IF EXISTS', data.trigger.name, 'ON', data.table.fullname, 'CASCADE' ],
         done: done
       });
     },
@@ -166,10 +210,10 @@ define(module, (exports, require) => {
             '  ELSE',
             '    id = OLD.id;',
             '  END IF;',
-            '  PERFORM pg_notify(\'row_modified\', json_build_object(\'table\', TG_TABLE_NAME, \'id\', id, \'type\', TG_OP)::text);',
+            '  PERFORM pg_notify(\'row_modified\', json_build_object(\'schema\', TG_TABLE_SCHEMA, \'table\', TG_TABLE_NAME, \'id\', id, \'type\', TG_OP)::text);',
             '  RETURN NEW;',
             'END;',
-            '$$ LANGUAGE plpgsql;'
+          '$$ LANGUAGE plpgsql;'
         ],
         done: done
       });
@@ -194,7 +238,7 @@ define(module, (exports, require) => {
     create_trigger_command: function(data) {
       return [
         'CREATE TRIGGER', data.trigger.name, data.trigger.sequence || 'AFTER',
-          data.trigger.event, 'ON', data.table.name,
+          data.trigger.event, 'ON', data.table.fullname,
           'FOR EACH', data.trigger.row ? 'ROW' : 'STATEMENT',
           'EXECUTE PROCEDURE', data.trigger.procedure + '()'
       ];
