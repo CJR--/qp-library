@@ -37,7 +37,7 @@ define(module, (exports, require) => {
 
     execute: function(cmd, handlers) {
       this.connection.query(cmd, (error, pg_result) => {
-        if ((cmd.select && !cmd.select_all) && pg_result.rowCount > 1) {
+        if ((cmd.select && !cmd.select_all) && pg_result && pg_result.rowCount > 1) {
           error = new Error('Select cannot return multiple rows');
         }
 
