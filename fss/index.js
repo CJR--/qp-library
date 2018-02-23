@@ -160,6 +160,16 @@ define(module, function(exports, require) {
       return file;
     },
 
+    read_file: function() {
+      var args = slice.call(arguments);
+      var encoding = args.pop();
+      var data = null;
+      try {
+        data = fs.readFileSync(path.join.apply(null, args), encoding);
+      } catch(e) { throw e; }
+      return data;
+    },
+
     read_json: function() {
       var json = null;
       try {
