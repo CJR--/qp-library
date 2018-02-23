@@ -25,6 +25,8 @@ define(module, function(exports, require) {
     admin_user: env.PG_ADMIN_USER || env.PG_USER || env.PGUSER || '',
     admin_password: env.PG_ADMIN_PASS || env.PG_PASS || env.PGPASSWORD || '',
 
+    schema: null,
+
     on_connect: (client) => log_event('CONNECT', client),
     on_aquire: (client) => log_event('AQUIRE', client),
     on_remove: (client) => log_event('REMOVE', client),
@@ -60,7 +62,7 @@ define(module, function(exports, require) {
         pool.on('remove', options.on_remove);
         pool.on('error', options.on_error);
       }
-      log.postgres('OPEN', qp.format('{{host}}:{{port}} ({{database}}:{{user}})', options));
+      log.postgres('OPEN', qp.format('{{host}}:{{port}} ({{database}}:{{user}}) {{schema}}', options));
       return options;
     },
 
@@ -68,9 +70,25 @@ define(module, function(exports, require) {
       return new pg.Client(get_options(o));
     },
 
-    connect: function(handler) { return pool.connect(handler); },
+    connect: function(handler) {
+      if (pool.options.schema) {
+        pool.connect(function(error, connection, close_connection) {
+          if (!error) {
+            connection.query('SET search_path TO ' + pool.options.schema + ', public', function(error, result) {
+              handler(error, connection, close_connection);
+            });
+          } else {
+            handler(error, connection, close_connection);
+          }
+        });
+      } else {
+        pool.connect(handler);
+      }
+    },
 
-    query: function(cmd, values, handler) { return pool.query(cmd, values, handler); },
+    query: function(cmd, values, handler) {
+      return pool.query(qp.is_array(cmd) ? qp.build(cmd) : cmd, values, handler);
+    },
 
     close: function(done) {
       if (pool === null) {
