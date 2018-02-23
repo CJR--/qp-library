@@ -62,7 +62,7 @@ define(module, (exports, require) => {
       });
     },
 
-    grant_all_tables: function(data, done) {
+    grant_all: function(data, done) {
       this.execute({
         text: [
           [ 'GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA', data.schema_name, 'TO', data.user ],
