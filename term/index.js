@@ -39,12 +39,30 @@ define(module, function(exports, require) {
     return index > -1 ? code.hex[index] : '';
   }
 
+  var child_process = require('child_process');
+
   exports({
 
     exit: function(code) { process.exit(code || 0); },
 
     set_title: function(title) {
       process.stdout.write(String.fromCharCode(27) + ']0;' + title + String.fromCharCode(7));
+    },
+
+    clear: function() {
+      if (process.platform === 'win32') {
+        process.stdout.write('\033c');
+      } else {
+        process.stdout.write('\u001B[2J\u001B[0;0f');
+      }
+    },
+
+    log: function(text) {
+      console.log.apply(console, arguments);
+    },
+
+    run: function(command, options) {
+      child_process.execSync(command, Object.assign({ stdio: [0,1,2] }, options));
     },
 
     keypress: function(handler) {
