@@ -3,13 +3,12 @@ define(module, (exports, require) => {
   var qp = require('qp-utility');
   var log = require('qp-library/log');
 
-  function quote(text) { return '"' + text + '"'; }
-
   qp.make(exports, {
 
     ns: 'qp-library/postgres/schema',
 
     connection: null,
+    log_statements: false,
 
     create_schema: function(data, done) {
       this.execute({
@@ -125,9 +124,9 @@ define(module, (exports, require) => {
               if (column.primary) {
                 def += ' SERIAL PRIMARY KEY';
               } else if (column.primary_key) {
-                def += ' INTEGER PRIMARY KEY';
-              } else if (column.unique) {
-                def += ' INTEGER';
+                def += ' integer PRIMARY KEY';
+              } else if (column.foreign && column.constrain) {
+                def += ' ' + column.type + ' REFERENCES ' + column.table_fullname;
               } else {
                 def += ' ' + column.type;
                 if (column.type === 'numeric') {
@@ -186,10 +185,38 @@ define(module, (exports, require) => {
       });
     },
 
-    add_index: function() { },
-    remove_index: function() { },
-    add_constraint: function() { },
-    remove_constraint: function() { },
+    create_indexes: function(data, done) {
+      var indexes = [];
+      qp.each_own(data.indexes, (index) => {
+        indexes.push(this.create_index_statement({ table: data.table, index: index }));
+      });
+      if (qp.empty(indexes)) done();
+      else this.execute({ text: indexes, done: done });
+    },
+
+    create_index: function(data, done) {
+      this.execute({
+        text: this.create_index_statement(data),
+        done: done
+      });
+    },
+
+    create_index_statement: function(data) {
+      return [
+        'CREATE' + (data.index.unique ? ' UNIQUE' : ''), 'INDEX IF NOT EXISTS', data.index.name,
+        'ON', data.table.fullname,
+        'USING', data.index.method,
+        (data.index.expression || data.index.column),
+        (data.index.desc ? 'DESC' : 'ASC')
+      ];
+    },
+
+    drop_index: function(data, done) {
+      this.execute({
+        text: [ 'DROP INDEX IF EXISTS', data.index.name ],
+        done: done
+      });
+    },
 
     drop_trigger: function(data, done) {
       this.execute({
@@ -247,7 +274,7 @@ define(module, (exports, require) => {
     execute: function(config) {
       var done = config.done || qp.noop;
       var cmd = this.prepare(config);
-      // log(cmd.text);
+      if (this.log_statements) log(cmd.text);
       this.connection.query(cmd, (error, pg_result) => {
         if (error) { log(error); done(error); } else {
           done(null, { cmd: cmd });
