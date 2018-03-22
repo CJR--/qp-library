@@ -57,8 +57,18 @@ define(module, function(exports, require) {
       }
     },
 
-    log: function(text) {
-      console.log.apply(console, arguments);
+    log: function(text) { console.log.apply(console, arguments); },
+    error: function() { console.error.apply(console, arguments); },
+
+    done: function(error) {
+      if (typeof error === 'string') {
+        console.error.apply(console, arguments);
+      } else if (typeof error === 'object') {
+        console.error(error.message);
+      } else {
+        console.log('Process Complete');
+      }
+      process.exit(error ? -1 : 0);
     },
 
     run: function(command, options) {
