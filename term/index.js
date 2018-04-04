@@ -57,6 +57,7 @@ define(module, function(exports, require) {
       }
     },
 
+    log_title: function() { console.log('\x1b[47m\x1b[34m ' + Array.prototype.slice.call(arguments).join('') + ' \x1b[0m\x1b[0m'); },
     log: function(text) { console.log.apply(console, arguments); },
     error: function() { console.error.apply(console, arguments); },
 
