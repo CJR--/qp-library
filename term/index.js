@@ -29,6 +29,12 @@ define(module, function(exports, require) {
     ]
   };
 
+  function blue_white(s) { return `\x1b[47m\x1b[34m${s}\x1b[0m\x1b[0m`; }
+  function red(s)        { return `\x1b[31m${s}\x1b[0m`; }
+  function green(s)      { return `\x1b[32m${s}\x1b[0m`; }
+  function blue(s)       { return `\x1b[34m${s}\x1b[0m`; }
+
+
   function get_key(hex) {
     var index = code.hex.indexOf(hex);
     return index > -1 ? code.key[index] : '';
@@ -40,8 +46,15 @@ define(module, function(exports, require) {
   }
 
   var child_process = require('child_process');
+  var readline = require('readline');
+  var qp = require('qp-utility');
 
-  exports({
+  qp.module(exports, {
+
+    blue_white: blue_white,
+    red: red,
+    green: green,
+    blue: blue,
 
     exit: function(code) { process.exit(code || 0); },
 
@@ -57,9 +70,10 @@ define(module, function(exports, require) {
       }
     },
 
-    log_title: function() { console.log('\x1b[47m\x1b[34m ' + Array.prototype.slice.call(arguments).join('') + ' \x1b[0m\x1b[0m'); },
-    log: function(text) { console.log.apply(console, arguments); },
+    log_title: function() { console.log(blue_white(qp.arg(arguments).join(''))); },
+    log: function() { console.log.apply(console, arguments); },
     error: function() { console.error.apply(console, arguments); },
+    line: function() { console.log(); },
 
     done: function(error) {
       if (typeof error === 'string') {
@@ -85,7 +99,83 @@ define(module, function(exports, require) {
         handler(key, chr);
       });
       process.stdin.resume();
-    }
+    },
+
+    /* USER INPUT */
+
+    input: function() {
+      var items = qp.arg(arguments);
+      var done = items.pop();
+      var results = {};
+      var next_input = () => {
+        if (items.length) {
+          var item = items.shift();
+          var action = item.key === 'confirm' ? 'confirm' : item.options ? 'pick' : 'ask';
+          this[action](item, (error, result) => {
+            qp.override(results, result);
+            if (error) return done(error, results); else next_input();
+          });
+        } else {
+          done(null, results);
+        }
+      };
+      next_input();
+    },
+
+    confirm: function(data, done) {
+      var prompt = readline.createInterface({ input: process.stdin, output: process.stdout });
+      if (data.default) data.default_text =` (${data.default})? `;
+      prompt.question(blue(data.question + (data.default_text || '? ')), (answer) => {
+        prompt.close();
+        answer = qp.lower(answer || (data.default || 'n')).slice(0, 1);
+        done(null, { [data.key]: answer === 'y' });
+      });
+    },
+
+    ask: function(data, done) {
+      var prompt = readline.createInterface({ input: process.stdin, output: process.stdout });
+      if (data.default) data.default_text =` (${data.default}): `;
+      prompt.question(green(data.question + (data.default_text || ': ')), (answer) => {
+        prompt.close();
+        done(null, { [data.key]: answer || data.default || '' });
+      });
+    },
+
+    pick: function(data, done) {
+      if (data.title) console.log(data.title);
+      data.default = {
+        option: null,
+        text: data.default ? ` (${data.default}): ` : ': ',
+        value: data.default
+      };
+      data.options.forEach((option, i) => {
+        option.key = option.key || i + 1;
+        console.log(`${option.key} - ${option.text}`);
+        if (option.default) {
+          data.default.option = option;
+          data.default.text = ` (${option.text}): `;
+        }
+      });
+      var prompt = readline.createInterface({ input: process.stdin, output: process.stdout });
+      prompt.question(green(data.question + data.default.text), (answer) => {
+        prompt.close();
+        if (data.multi) {
+          if (answer === '') answer = data.default.value || '';
+          var options = qp.select(answer.split(''), key => {
+            var option = data.options.find(option => qp.lower(option.key) === qp.lower(key));
+            return qp.get(option, 'value', option);
+          });
+          done(null, { [data.key]: options });
+        } else {
+          var option = data.options.find(option => qp.lower(option.key) === qp.lower(answer)) || null;
+          if (data.default.option && !option) {
+            done(null, { [data.key]: qp.get(data.default.option, 'value', data.default.option) });
+          } else {
+            done(null, { [data.key]: qp.get(option, 'value', option) });
+          }
+        }
+      });
+    },
 
   });
 
