@@ -22,7 +22,7 @@ define(module, function(exports, require) {
     },
 
     append: function() {
-      this.items = this.items.concat(qp.args(arguments));
+      this.items = this.items.concat(qp.arg(arguments));
       return this;
     },
 
@@ -41,6 +41,10 @@ define(module, function(exports, require) {
       var tmp_indent = new Array(count + 1).join(opt_indent || this.indent_string);
       this.items = this.items.map(function(line) { return tmp_indent + line;  });
       return this;
+    },
+
+    clear: function() {
+      this.items = [];
     },
 
     lines: function() {
