@@ -1,6 +1,6 @@
 {
   "name": "qp-library",
-  "version": "2.1.28",
+  "version": "2.1.29",
   "description": "javascript utility object library.",
   "main": "index.js",
   "author": "CJR",
