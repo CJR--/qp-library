@@ -22,7 +22,7 @@ define(module, function(exports, require) {
     },
 
     append: function() {
-      this.items = this.items.concat(qp.arg(arguments));
+      this.items = this.items.concat(qp.arg(arguments).join(''));
       return this;
     },
 
