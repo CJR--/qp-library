@@ -94,6 +94,10 @@ define(module, function(exports, require) {
       return this.self.create({ url: this.path + name + '.' + qp.ltrim(ext, '.') });
     },
 
+    get_param: function(key) {
+      return this.get_params()[key];
+    },
+
     get_params: (function() {
       var params = false;
       return function() {
