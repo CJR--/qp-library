@@ -58,7 +58,9 @@ define(module, function(exports, require) {
     },
 
     close: function(code, message) {
-      this.socket.close(code, message || '');
+      if (this.socket) {
+        this.socket.close(code, message || '');
+      }
     }
 
   });
