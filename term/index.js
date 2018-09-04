@@ -78,7 +78,7 @@ define(module, function(exports, require) {
     done: function(error) {
       if (typeof error === 'string') {
         console.error.apply(console, arguments);
-      } else if (typeof error === 'object') {
+      } else if (typeof error === 'object' && error !== null) {
         console.error(error.message);
       } else {
         console.log('Process Complete');
