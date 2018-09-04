@@ -1,6 +1,7 @@
 define(module, function(exports, require) {
 
   var http = require('http');
+  var https = require('https');
   var fs = require('fs');
   var domain = require('domain');
   var useragent = require('useragent');
@@ -19,6 +20,8 @@ define(module, function(exports, require) {
     name: '',
     port: 80,
     www: '',
+    secure: false,
+    certificate: '',
     favicon: 'none',
     headers: {},
     cors: {
@@ -119,19 +122,26 @@ define(module, function(exports, require) {
     },
 
     create_server: function() {
+      var options = { };
+      var http_handler = qp.noop;
       if (this.enable_domain) {
-        this.http_server = http.createServer(function(req, res) {
+        http_handler = function(req, res) {
           var d = domain.create();
           d.on('error', this.on_error.bind(this, req, res));
           d.add(req);
           d.add(res);
           d.run(this.run_request.bind(this, req, res));
-        }.bind(this));
+        }.bind(this);
       } else {
         process.on('uncaughtException', this.on_error.bind(this, undefined, undefined));
-        this.http_server = http.createServer(function(req, res) {
-          this.run_request.call(this, req, res);
-        }.bind(this));
+        http_handler = function(req, res) { this.run_request.call(this, req, res); }.bind(this);
+      }
+      if (this.secure) {
+        options.key  = fss.read(`${this.certificate}-key.pem`);
+        options.cert = fss.read(`${this.certificate}.pem`);
+        this.http_server = https.createServer(options, http_handler);
+      } else {
+        this.http_server = http.createServer(options, http_handler);
       }
     },
 
@@ -207,7 +217,9 @@ define(module, function(exports, require) {
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
       }, this);
-      if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
+      if (this.secure && !req.secure) {
+        send.redirect('https://' + req.hostname + req.url);
+      } else if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
         send(200, { mime: this.mime('ico'), size: 0 }, '');
       } else {
         this.on_request(req.method, req_url, send, req, res);
