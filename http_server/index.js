@@ -18,6 +18,7 @@ define(module, function(exports, require) {
 
     title: '',
     name: '',
+    origin: '',
     port: 80,
     www: '',
     secure: false,

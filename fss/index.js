@@ -170,6 +170,21 @@ define(module, function(exports, require) {
       return data;
     },
 
+    write_file: function() {
+      var args = slice.call(arguments);
+      var encoding = args.pop();
+      var data = args.pop();
+      var file = path.join.apply(null, args);
+      var filepath = path.dirname(file);
+      try {
+        if (!fs.existsSync(filepath)) {
+          make_directory(filepath);
+        }
+        fs.writeFileSync(file, data, encoding);
+      } catch (e) { throw e; }
+      return file;
+    },
+
     read_json: function() {
       var json = null;
       try {
