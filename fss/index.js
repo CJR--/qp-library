@@ -88,7 +88,10 @@ define(module, function(exports, require) {
     },
 
     exists: function() {
-      return fs.existsSync(path.join.apply(null, arguments));
+      try {
+        return fs.existsSync(path.join.apply(null, arguments));
+      } catch (ex) { /* IGNORE ERROR */ }
+      return false;
     },
 
     make_directory: make_directory,
