@@ -26,6 +26,13 @@ define(module, function(exports, require) {
       return this;
     },
 
+    append_if: function(condition) {
+      if (condition) {
+        this.items = this.items.concat(qp.rest(arguments).join(''));
+      }
+      return this;
+    },
+
     set_indent: function(indent_string) {
       this.indent_string = indent_string;
       return this;
