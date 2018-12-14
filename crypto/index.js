@@ -63,7 +63,7 @@ define(module, (exports, require) => {
     },
 
     create_code: function(length, segment) {
-      var set = this.random_set(length, 'ABCDFGHJKLMNPQRSTWXYZ23456789');
+      var set = this.random_set(length, 'BCDFGHJKLMNPQRSTWXYZ23456789');
       if (qp.is(segment, 'number')) {
         return qp.map(qp.segment(set, segment), item => item.join('')).join('-');
       } else {
