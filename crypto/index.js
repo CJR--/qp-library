@@ -71,6 +71,11 @@ define(module, (exports, require) => {
       }
     },
 
+    create_reference: function() {
+      var o = this.random_set(12, 'BCDFGHJKLMNPQRSTWXYZ23456789');
+      return `${o[0]}${o[1]}${o[2]}${o[3]}-${o[4]}${o[5]}${o[6]}${o[7]}-${o[8]}${o[9]}${o[10]}${o[11]}`;
+    },
+
     random_set: function(length, set0) {
       set0 = set0 || 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       var set1 = [];
