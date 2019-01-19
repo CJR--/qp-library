@@ -6,8 +6,8 @@ define(module, function(exports, require) {
   var os = require('os');
   var mode = {};
 
-  var inspect = /--inspect/.test(process.execArgv.join(' '));
-  mode[qp.lower(inspect ? 'INSPECT' : (process.env.log || 'STANDARD'))] = true;
+  var INSPECT = /--inspect/.test(process.execArgv.join(' ')) ? 'INSPECT' : null;
+  mode[qp.lower(INSPECT || process.env.LOG || 'STANDARD')] = true;
 
   var log = function log() {
     console.log.apply(console, arguments);
