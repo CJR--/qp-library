@@ -102,7 +102,7 @@ define(module, function(exports, require) {
 
       process.on('SIGTERM', function() {
         this.stop(() => {
-          log(log.red(' * Process Terminated * '));
+          log(log.red('SIGTERM'), qp.now('iso'));
           process.exit(0);
         });
       }.bind(this));
