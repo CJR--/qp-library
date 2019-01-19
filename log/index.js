@@ -4,16 +4,20 @@ define(module, function(exports, require) {
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
   var os = require('os');
+  var mode = {};
 
-  var debug = /--inspect/.test(process.execArgv.join(' '));
+  var inspect = /--inspect/.test(process.execArgv.join(' '));
+  mode[qp.lower(inspect ? 'INSPECT' : (process.env.log || 'STANDARD'))] = true;
 
   var log = function log() {
     console.log.apply(console, arguments);
   };
 
   log.clear = function() {
-    if (debug) {
+    if (mode.inspect) {
       console.clear();
+    } else if (mode.deployed) {
+      //
     } else {
       if (process.platform === 'win32') {
         process.stdout.write('\033c');
@@ -47,7 +51,7 @@ define(module, function(exports, require) {
     console.log.apply(console, qp.union([log.yellow('PG  ' + qp.rpad(type, 4))], qp.rest(arguments)));
   };
 
-  if (debug) {
+  if (mode.inspect || mode.deployed) {
     var plain_text = function() { return qp.join(arguments, ' '); };
     log.blue_white = plain_text;
     log.red_white = plain_text;
