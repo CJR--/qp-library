@@ -86,8 +86,12 @@ define(module, function(exports, require) {
       process.exit(error ? -1 : 0);
     },
 
+    exec: function(command) {
+      return child_process.execSync(command);
+    },
+
     run: function(command, options) {
-      child_process.execSync(command, Object.assign({ stdio: [0,1,2] }, options));
+      return child_process.execSync(command, Object.assign({ stdio: [0,1,2] }, options));
     },
 
     keypress: function(handler) {
