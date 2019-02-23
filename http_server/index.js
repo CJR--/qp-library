@@ -91,8 +91,8 @@ define(module, function(exports, require) {
         send(200, { mime: this.mime('json'), size: Buffer.byteLength(data) }, data, headers);
       },
 
-      redirect: function(send, location) {
-        send(302, null, null, { 'Location': location });
+      redirect: function(send, location, permanent) {
+        send(permanent ? 308 : 307, null, null, { 'Location': location });
       }
 
     },
