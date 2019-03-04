@@ -38,6 +38,7 @@ define(module, function(exports, require) {
     file: '',
     name: '',
     ext: '',
+    params: undefined,
     mime: '',
 
     init: function(config) {
@@ -98,12 +99,9 @@ define(module, function(exports, require) {
       return this.get_params()[key];
     },
 
-    get_params: (function() {
-      var params = false;
-      return function() {
-        return params || (params = qs.parse(this.parsed.query));
-      };
-    })()
+    get_params: function() {
+      return this.params || (this.params = qs.parse(this.parsed.query));
+    }
 
   });
 
