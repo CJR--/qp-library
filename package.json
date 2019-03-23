@@ -6,15 +6,15 @@
   "author": "CJR",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^6.2.0",
+    "dotenv": "^7.0.0",
     "mime": "^2.4.0",
     "mustache": "^3.0.1",
-    "pg": "^7.7.1",
+    "pg": "^7.9.0",
     "qp-define": "^2",
-    "qp-utility": "^1.4.55",
+    "qp-utility": "^1.4.61",
     "semver": "^5.6.0",
     "useragent": "^2",
-    "ws": "^6.1.2"
+    "ws": "^6.2.0"
   },
   "repository": {
     "type": "git",
