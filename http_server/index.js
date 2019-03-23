@@ -230,7 +230,7 @@ define(module, function(exports, require) {
     send: function(req_url, req, res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
-        this.log_request(status, req.method, req_url.fullname);
+        this.log_request(status, req.method, req_url.fullname, req, headers);
         if (arguments.length === 3) {
           res.writeHead(204, this.headers);
           res.end();
@@ -251,11 +251,15 @@ define(module, function(exports, require) {
       }
     },
 
-    log_request: function(status, method, url) {
+    log_request: function(status, method, url, req, headers) {
       var status_color = status < 200 ? 'magenta' : status < 300 ? 'green' : status < 400 ? 'yellow' : 'white_red';
       var method_color = status >= 400 ? 'white_red' : 'blue';
       var url_color = status >= 400 ? 'white_red' : 'white';
-      log(log[status_color](status), log[method_color](qp.rpad(method, 4)), log[url_color](url));
+      var info = '';
+      if (status === 307 || status === 308) {
+        info = ` -> ${headers.Location}`;
+      }
+      log(log[status_color](status), log[method_color](qp.rpad(method, 4)), log[url_color](url), info);
     },
 
     create_headers: function(stat, headers) {
