@@ -116,7 +116,7 @@ define(module, function(exports, require) {
       var next_input = () => {
         if (items.length) {
           var item = items.shift();
-          var action = item.key === 'confirm' ? 'confirm' : item.options ? 'pick' : 'ask';
+          var action = item.action || (item.key === 'confirm' ? 'confirm' : item.options ? 'pick' : 'ask');
           this[action](item, (error, result) => {
             qp.override(results, result);
             if (error) return done(error, results); else next_input();
@@ -131,7 +131,7 @@ define(module, function(exports, require) {
     confirm: function(data, done) {
       var prompt = readline.createInterface({ input: process.stdin, output: process.stdout });
       if (data.default) data.default_text =` (${data.default})? `;
-      prompt.question(blue(data.question + (data.default_text || '? ')), (answer) => {
+      prompt.question(green(data.question + (data.default_text || '? ')), (answer) => {
         prompt.close();
         answer = qp.lower(answer || (data.default || 'n')).slice(0, 1);
         done(null, { [data.key]: answer === 'y' });
