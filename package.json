@@ -11,7 +11,7 @@
     "mustache": "^3.0.1",
     "pg": "^7.10.0",
     "qp-define": "^2",
-    "qp-utility": "^1.4.62",
+    "qp-utility": "^1.4.63",
     "semver": "^6.0.0",
     "useragent": "^2",
     "ws": "^6.2.1"
