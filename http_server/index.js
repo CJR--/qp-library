@@ -93,6 +93,12 @@ define(module, function(exports, require) {
 
       redirect: function(send, location, permanent) {
         send(permanent ? 308 : 307, null, null, { 'Location': location });
+      },
+
+      error: function(send, error, headers) {
+        var data = JSON.stringify(error, null, 2);
+        send(500, { mime: this.mime('json'), size: Buffer.byteLength(data) }, data, headers);
+
       }
 
     },
