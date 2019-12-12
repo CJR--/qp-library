@@ -22,7 +22,9 @@ define(module, function(exports, require) {
     port: 80,
     www: '',
     secure: false,
-    certificate: '',
+    certificate_path: '',
+    certificate_file: '',
+    key_file: '',
     favicon: 'none',
     headers: {},
     cors: {
@@ -144,8 +146,8 @@ define(module, function(exports, require) {
         http_handler = function(req, res) { this.run_request.call(this, req, res); }.bind(this);
       }
       if (this.secure) {
-        options.key  = fss.read(`${this.certificate}-key.pem`);
-        options.cert = fss.read(`${this.certificate}.pem`);
+        options.cert = fss.read(this.certificate_path, this.certificate_file);
+        options.key  = fss.read(this.certificate_path, this.key_file);
         this.http_server = https.createServer(options, http_handler);
       } else {
         this.http_server = http.createServer(options, http_handler);
@@ -219,18 +221,28 @@ define(module, function(exports, require) {
     },
 
     run_request: function(req, res) {
+      var site = this.get_site(req);
       var req_url = url.create({ url: req.url });
       var send = this.send.bind(this, req_url, req, res);
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
       }, this);
-      if (this.secure && !req.secure) {
-        send.redirect('https://' + req.hostname + req.url);
-      } else if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
+      if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
         send(200, { mime: this.mime('ico'), size: 0 }, '');
       } else {
-        this.on_request(req.method, req_url, send, req, res);
+        this.on_request(req.method, req_url, send, req, res, site);
       }
+    },
+
+    get_site: function(req) {
+      var host = req.headers['host'];
+      var hostname = qp.before(host, ':');
+      return {
+        origin: hostname,
+        host: host,
+        hostname: hostname,
+        port: qp.after(host, ':')
+      };
     },
 
     send: function(req_url, req, res, status, stat, data, headers) {
