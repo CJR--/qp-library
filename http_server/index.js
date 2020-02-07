@@ -221,8 +221,8 @@ define(module, function(exports, require) {
     },
 
     run_request: function(req, res) {
-      var site = this.get_site(req);
-      var req_url = url.create({ url: req.url });
+      var req_url = url.create({ url: req.url, base_url: `http://${req.headers.host}` });
+      var site = this.get_site(req_url.parsed, req);
       var send = this.send.bind(this, req_url, req, res);
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
@@ -234,14 +234,14 @@ define(module, function(exports, require) {
       }
     },
 
-    get_site: function(req) {
-      var host = req.headers['host'];
-      var hostname = qp.before(host, ':');
+    get_site: function(url, req) {
       return {
-        origin: hostname,
-        host: host,
-        hostname: hostname,
-        port: qp.after(host, ':')
+        name: url.hostname,
+        protocol: url.protocol,
+        origin: url.origin,
+        host: url.host,
+        hostname: url.hostname,
+        port: url.port
       };
     },
 
