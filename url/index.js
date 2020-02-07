@@ -42,7 +42,11 @@ define(module, function(exports, require) {
     mime: '',
 
     init: function(config) {
-      this.parsed = node_url.parse(config.url);
+      if (config.base_url) {
+        this.parsed = new URL(config.url, config.base_url);
+      } else {
+        this.parsed = node_url.parse(config.url);
+      }
       var url_path = qp.trim(this.parsed.pathname.toLowerCase(), this.sep);
       var parts = qp.split(url_path, this.sep);
       var file = qp.last(parts) || '';
@@ -96,7 +100,11 @@ define(module, function(exports, require) {
     },
 
     get_param: function(key) {
-      return this.get_params()[key];
+      if (this.parsed.searchParams) {
+        return this.parsed.searchParams.get(key);
+      } else {
+        return this.get_params()[key];
+      }
     },
 
     get_params: function() {
