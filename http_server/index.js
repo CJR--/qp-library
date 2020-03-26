@@ -221,7 +221,7 @@ define(module, function(exports, require) {
     },
 
     run_request: function(req, res) {
-      var req_url = url.create({ url: req.url, base_url: `http://${req.headers.host}` });
+      var req_url = url.create({ url: req.url, base_url: `${req.headers['x-scheme']}://${req.headers.host}` });
       var site = this.get_site(req_url.parsed, req);
       var send = this.send.bind(this, req_url, req, res);
       qp.each(this.handlers, function(handler, key) {
