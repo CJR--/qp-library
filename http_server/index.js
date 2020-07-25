@@ -277,7 +277,7 @@ define(module, function(exports, require) {
       if (status === 307 || status === 308) {
         info = ` -> ${headers.Location}`;
       }
-      log(log[status_color](status), log[method_color](qp.rpad(method, 4)), log[url_color](url), info);
+      log(log.magenta('RES'), log[status_color](status), log[method_color](qp.rpad(method, 4)), log[url_color](url), info);
     },
 
     create_headers: function(stat, headers) {
