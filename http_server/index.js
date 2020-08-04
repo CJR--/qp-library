@@ -225,6 +225,7 @@ define(module, function(exports, require) {
       var req_url = url.create({ url: req.url, base_url: `${scheme}://${req.headers.host}` });
       var site = this.get_site(req_url.parsed, req);
       var send = this.send.bind(this, req_url, req, res);
+      this.log_request(req_url, site, req);
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
       }, this);
@@ -246,10 +247,14 @@ define(module, function(exports, require) {
       };
     },
 
+    log_request: function(req_url, site, req) {
+      log(log.magenta('REQ'), log.blue(qp.rpad(req.method, 4)), log.white(req_url.fullname));
+    },
+
     send: function(req_url, req, res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
-        this.log_request(status, req.method, req_url.fullname, req, headers);
+        this.log_response(status, req.method, req_url.fullname, req, headers);
         if (arguments.length === 3) {
           res.writeHead(204, this.headers);
           res.end();
@@ -270,7 +275,7 @@ define(module, function(exports, require) {
       }
     },
 
-    log_request: function(status, method, url, req, headers) {
+    log_response: function(status, method, url, req, headers) {
       var status_color = status < 200 ? 'magenta' : status < 300 ? 'green' : status < 400 ? 'yellow' : 'white_red';
       var method_color = status >= 400 ? 'white_red' : 'blue';
       var url_color = status >= 400 ? 'white_red' : 'white';
