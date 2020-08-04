@@ -46,10 +46,10 @@ define(module, function(exports, require) {
         this.channel = url.parts[2];
       }
     },
-
+    
     send: function(data, options, done) {
       if (this.socket) {
-        log.socket('SEND', '#' + this.user_id, qp.stringify(data));
+        log.socket('SEND', '#' + (this.user_id || this.id), qp.stringify(data));
         if (this.json) data = JSON.stringify(data, null, 2);
         this.socket.send(data, options, done);
       } else {
