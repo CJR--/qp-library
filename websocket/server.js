@@ -12,6 +12,7 @@ define(module, (exports, require) => {
 
     wss: null,
     sockets: [],
+    log: { },
 
     on_connect: null,
     on_connected: null,
@@ -72,7 +73,7 @@ define(module, (exports, require) => {
 
     on_socket_message: function(socket, data) {
       if (socket.json) data = JSON.parse(data);
-      log.socket('MSG', qp.stringify(data));
+      if (this.log.websocket) log.socket('MSG', qp.stringify(data));
       if (this.on_message) {
         this.on_message(socket, data, function(error, result) {
           if (error) socket.send(error); else socket.send(result);
@@ -86,12 +87,12 @@ define(module, (exports, require) => {
 
     on_socket_open: function(socket, e) {
       qp.push(this.sockets, socket);
-      log.socket('OPEN', qp.stringify({ id: socket.id, total: this.sockets.length, name: socket.channel }));
+      if (this.log.websocket) log.socket('OPEN', qp.stringify({ id: socket.id, total: this.sockets.length, name: socket.channel }));
     },
 
     on_socket_close: function(socket, code, message) {
       qp.remove(this.sockets, socket);
-      log.socket('SHUT', qp.stringify({ id: socket.id, total: this.sockets.length, code: code, name: socket.channel }));
+      if (this.log.websocket) log.socket('SHUT', qp.stringify({ id: socket.id, total: this.sockets.length, code: code, name: socket.channel }));
     }
 
   });

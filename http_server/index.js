@@ -21,6 +21,7 @@ define(module, function(exports, require) {
     origin: '',
     port: 80,
     www: '',
+    log: { },
     secure: false,
     certificate_path: '',
     certificate_file: '',
@@ -225,7 +226,7 @@ define(module, function(exports, require) {
       var req_url = url.create({ url: req.url, base_url: `${scheme}://${req.headers.host}` });
       var site = this.get_site(req_url.parsed, req);
       var send = this.send.bind(this, req_url, req, res);
-      this.log_request(req_url, site, req);
+      if (this.log.request) this.log_request(req_url, site, req);
       qp.each(this.handlers, function(handler, key) {
         send[key] = handler.bind(this, send);
       }, this);
@@ -254,7 +255,7 @@ define(module, function(exports, require) {
     send: function(req_url, req, res, status, stat, data, headers) {
       if (!res.done) {
         res.done = true;
-        this.log_response(status, req.method, req_url.fullname, req, headers);
+        if (this.log.response) this.log_response(status, req.method, req_url.fullname, req, headers);
         if (arguments.length === 3) {
           res.writeHead(204, this.headers);
           res.end();

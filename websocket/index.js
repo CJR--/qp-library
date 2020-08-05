@@ -18,6 +18,7 @@ define(module, function(exports, require) {
     version: '',
     channel: '',
     protocols: null,
+    log: { },
 
     json: false,
 
@@ -49,11 +50,11 @@ define(module, function(exports, require) {
     
     send: function(data, options, done) {
       if (this.socket) {
-        log.socket('SEND', '#' + (this.user_id || this.id), qp.stringify(data));
+        if (this.log.websocket) log.socket('SEND', '#' + (this.user_id || this.id), qp.stringify(data));
         if (this.json) data = JSON.stringify(data, null, 2);
         this.socket.send(data, options, done);
       } else {
-        log.socket('SEND', 'Failed. Socket closed;', this.key);
+        if (this.log.websocket) log.socket('SEND', 'Failed. Socket closed;', this.key);
       }
     },
 
