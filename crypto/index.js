@@ -71,6 +71,18 @@ define(module, (exports, require) => {
       }
     },
 
+    sequence_id: function(next_id, sequence, segment) {
+      var sequence_id = qp.map(qp.segment(Array.from(next_id), segment), item => item.join('')).join('-');
+      var id = Array.from(next_id);
+      var idx = sequence.length - 1, i = next_id.length - 1;
+      while (idx == 27) {
+        idx = sequence.indexOf(id[i]);
+        id[i] = idx === 27 ? sequence[0] : sequence[idx + 1];
+        i--;
+      }
+      return { id: sequence_id, next_id: id.join('') };
+    },
+
     create_reference: function() {
       var o = this.random_set(12, 'BCDFGHJKLMNPQRSTWXYZ23456789');
       return `${o[0]}${o[1]}${o[2]}${o[3]}-${o[4]}${o[5]}${o[6]}${o[7]}-${o[8]}${o[9]}${o[10]}${o[11]}`;
