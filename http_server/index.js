@@ -9,6 +9,7 @@ define(module, function(exports, require) {
   var mime = require('mime');
   var qp = require('qp-utility');
   var fss = require('qp-library/fss');
+  var fso = require('qp-library/fso');
   var url = require('qp-library/url');
   var log = require('qp-library/log');
 
@@ -21,6 +22,8 @@ define(module, function(exports, require) {
     origin: '',
     port: 80,
     www: '',
+    auto: false,
+    build: false,
     log: { },
     secure: false,
     certificate_path: '',
@@ -124,7 +127,7 @@ define(module, function(exports, require) {
       qp.parallel([
         (data, done) => this.http_server.close(done),
         (data, done) => this.on_stop(done)
-      ], done);
+      ], done || qp.noop);
     },
 
     add_handler: function(key, handler) {
@@ -232,6 +235,8 @@ define(module, function(exports, require) {
       }, this);
       if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
         send(200, { mime: this.mime('ico'), size: 0 }, '');
+      } else if (this.auto) {
+        this.on_auto_request(req.method, req_url, send, req, res, site);
       } else {
         this.on_request(req.method, req_url, send, req, res, site);
       }
@@ -299,6 +304,30 @@ define(module, function(exports, require) {
     },
 
     on_request: function(method, url, send) { send(204); },
+
+    on_auto_request: function(method, url, send) {
+      if (method === 'GET') {
+        if (url.is_file) {
+          let file = fso.create({ base: this.www, url: url });
+          if (file.is_file && file.exists) {
+            send.file(file);
+          } else {
+            send(404);
+          }
+        } else if (url.is_directory) {
+          let file = fso.create({ base: this.www, path: url.fullname + 'index.html' });
+          if (file.is_file && file.exists) {
+            send.file(file);
+          } else {
+            send(404);
+          }
+        } else {
+          send(404);
+        }
+      } else {
+        send(404);
+      }
+    },
 
     on_start: function() { },
 
