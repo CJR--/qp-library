@@ -44,6 +44,7 @@ define(module, function(exports, require) {
       }
     },
     templates: {},
+    routes: null,
 
     http_server: null,
     is_closing: false,
@@ -132,6 +133,12 @@ define(module, function(exports, require) {
 
     add_handler: function(key, handler) {
       this.handlers[key] = handler.bind(this);
+    },
+
+    add_route: function(host, ns) {
+      var handler = require(ns);
+      if (!this.routes) this.routes = {};
+      this.routes[host] = handler.create();
     },
 
     create_server: function() {
@@ -227,22 +234,28 @@ define(module, function(exports, require) {
     run_request: function(req, res) {
       var scheme = req.headers['x-scheme'] || 'http';
       var req_url = url.create({ url: req.url, base_url: `${scheme}://${req.headers.host}` });
-      var site = this.get_site(req_url.parsed, req);
-      var send = this.send.bind(this, req_url, req, res);
+      var site = this.get_site(req_url.parsed);
       if (this.log.request) this.log_request(req_url, site, req);
-      qp.each(this.handlers, function(handler, key) {
-        send[key] = handler.bind(this, send);
-      }, this);
-      if (req.method === 'GET' && req_url.equals('/favicon.ico') && this.favicon === 'none') {
+      var send = this.send.bind(this, req_url, req, res);
+      qp.each(this.handlers, (handler, key) => send[key] = handler.bind(this, send));
+      if (req.method === 'GET' && this.favicon === 'none' && req_url.equals('/favicon.ico')) {
         send(200, { mime: this.mime('ico'), size: 0 }, '');
       } else if (this.auto) {
         this.on_auto_request(req.method, req_url, send, req, res, site);
+      } else if (this.has_route(site)) {
+        this.run_route(req.method, req_url, send, req, res, site);
       } else {
         this.on_request(req.method, req_url, send, req, res, site);
       }
     },
 
-    get_site: function(url, req) {
+    has_route: function(site) { return this.routes && qp.defined(this.routes[site.host]); },
+
+    run_route: function(method, url, send, req, res, site) {
+      this.routes[site.host].on_request(method, url, send, req, res, site);
+    },
+
+    get_site: function(url) {
       return {
         name: url.hostname,
         protocol: url.protocol,
@@ -254,7 +267,7 @@ define(module, function(exports, require) {
     },
 
     log_request: function(req_url, site, req) {
-      log(log.magenta('REQ'), log.blue(qp.rpad(req.method, 4)), log.white(req_url.fullname));
+      log(log.magenta('REQ    '), log.blue(qp.rpad(req.method, 4)), log.white(req_url.fullname));
     },
 
     send: function(req_url, req, res, status, stat, data, headers) {
@@ -289,7 +302,7 @@ define(module, function(exports, require) {
       if (status === 307 || status === 308) {
         info = ` -> ${headers.Location}`;
       }
-      log(log.magenta('RES'), log[status_color](status), log[method_color](qp.rpad(method, 4)), log[url_color](url), info);
+      log(log.magenta('RES    '), log[status_color](status), log[method_color](qp.rpad(method, 4)), log[url_color](url), info);
     },
 
     create_headers: function(stat, headers) {
