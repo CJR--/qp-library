@@ -287,7 +287,7 @@ define(module, function(exports, require) {
             res.write(data);
             res.end();
           // TODO: detect stream.PassThrough objects
-          } else if (qp.is(data, 'readstream') || qp.is(data.pipe, 'function')) {
+          } else if (qp.is(data, 'readstream') || qp.is(data?.pipe, 'function')) {
             data.pipe(res);
           } else {
             res.end();
