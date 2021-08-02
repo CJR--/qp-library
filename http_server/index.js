@@ -3,6 +3,7 @@ define(module, function(exports, require) {
   var http = require('http');
   var https = require('https');
   var fs = require('fs');
+  var stream = require('stream');
   var domain = require('domain');
   var useragent = require('useragent');
   var mustache = require('mustache');
@@ -82,7 +83,8 @@ define(module, function(exports, require) {
       },
 
       data: function(send, data, mime, headers) {
-        send(200, { mime: mime, size: Buffer.byteLength(data) }, data, headers);
+        const readStream = new stream.PassThrough();
+        send(200, { mime: mime, size: Buffer.byteLength(data) }, readStream.end(data), headers);
       },
 
       file: function(send, file, headers) {
@@ -105,7 +107,6 @@ define(module, function(exports, require) {
       error: function(send, error, headers) {
         var data = JSON.stringify(error, null, 2);
         send(500, { mime: this.mime('json'), size: Buffer.byteLength(data) }, data, headers);
-
       }
 
     },
@@ -285,7 +286,8 @@ define(module, function(exports, require) {
           if (qp.is(data, 'string')) {
             res.write(data);
             res.end();
-          } else if (qp.is(data, 'readstream')) {
+          // TODO: detect stream.PassThrough objects
+          } else if (qp.is(data, 'readstream') || qp.is(data.pipe, 'function')) {
             data.pipe(res);
           } else {
             res.end();
