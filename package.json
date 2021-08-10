@@ -6,7 +6,7 @@
   "author": "CJR",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "dotenv": "^10.0.0",
     "mime": "^2.4.6",
     "mustache": "^4.0.1",
     "pg": "^8.3.0",
@@ -14,7 +14,7 @@
     "qp-utility": "^1.5.5",
     "semver": "^7.3.2",
     "useragent": "^2",
-    "ws": "^7.3.1"
+    "ws": "^8.0.0"
   },
   "repository": {
     "type": "git",
